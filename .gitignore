@@ -214,3 +214,8 @@ frontend/assets/fonts
 backend/data_export/migrations/0001_initial.py
 backend/data_import/migrations/0001_initial.py
 backend/examples/migrations/0001_initial.py
+backend/users/migrations/0001_initial.py
+backend/roles/migrations/0001_initial.py
+backend/projects/migrations/0001_initial.py
+backend/labels/migrations/0001_initial.py
+backend/label_types/migrations/0001_initial.py
