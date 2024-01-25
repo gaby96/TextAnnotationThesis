@@ -18,17 +18,17 @@ class LabelManager(Manager):
             >>> self.calc_label_distribution(examples, members, labels)
             {'admin': {'positive': 10, 'negative': 5}}
         """
-        distribution = {member.username: {label.text: 0 for label in labels} for member in members}
+        distribution = {member.email: {label.text: 0 for label in labels} for member in members}
         items = (
             self.filter(example_id__in=examples)
-            .values("user__username", f"{self.label_type_field}__text")
+            .values("user__email", f"{self.label_type_field}__text")
             .annotate(count=Count(f"{self.label_type_field}__text"))
         )
         for item in items:
-            username = item["user__username"]
+            email = item["user__email"]
             label = item[f"{self.label_type_field}__text"]
             count = item["count"]
-            distribution[username][label] = count
+            distribution[email][label] = count
         return distribution
 
     def get_labels(self, label, project):

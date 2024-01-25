@@ -79,8 +79,8 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def username(self):
-        return self.user.username
+    def email(self):
+        return self.user.email
 
     class Meta:
         ordering = ["created_at"]

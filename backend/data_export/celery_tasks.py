@@ -51,7 +51,7 @@ def create_individual_dataset(project: Project, dirpath: str, confirmed_only: bo
 
         service = ExportApplicationService(dataset, formatters, writer)
 
-        filepath = os.path.join(dirpath, f"{member.username}.{writer.extension}")
+        filepath = os.path.join(dirpath, f"{member.email}.{writer.extension}")
         service.export(filepath)
 
 
