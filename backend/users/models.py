@@ -9,18 +9,17 @@ import uuid
 
 #custom manager in Django is a way to add extra methods to a model to perform querying operations
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, firstname, lastname, password=None): #firstname, lastname,
+    def create_user(self, email, first_name, last_name, username, password=None): #firstname, lastname,
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(
             email=self.normalize_email(email),
-            firstname=firstname,
-            lastname=lastname,
+            first_name=first_name,
+            last_name=last_name,
+            username=username
         )
         
-        if not email:
-            raise ValueError('Users must have an email address')
         if not password:
             raise ValueError('Users must have a password')
 
@@ -37,22 +36,19 @@ class CustomUserManager(BaseUserManager):
 #models.Model: This is the base class for all models in Django's ORM. Inheriting from models.Model means that User is a Django model and can be mapped to a database table. 
 #models.Model provides essential functionalities like saving to or fetching from the database, defining fields, etc.
 class User(AbstractUser, models.Model):
-    email = models.EmailField(
-        verbose_name='email address',
-        max_length=255,
-        unique=True,
-    )
+    # email = models.EmailField(
+    #     verbose_name='email address',
+    #     max_length=255,
+    #     unique=True,
+    # )
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
-    #username = models.CharField(blank=True, max_length=50)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     #USERNAME_FIELD = 'email'
 
-    REQUIRED_FIELDS = ['email']
+    # REQUIRED_FIELDS = ['email']
 
     objects = CustomUserManager()
 

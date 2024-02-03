@@ -14,6 +14,7 @@ from rest_framework import generics
 
 from django.http import JsonResponse
 from django.core.exceptions import PermissionDenied
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -27,28 +28,25 @@ from django.core.mail import send_mail
 from backend import settings
 #from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-
-from .serializers import ChangePasswordSerializer
+from rest_framework.permissions import AllowAny
+from .serializers import ChangePasswordSerializer, UserSerializer
 from django.contrib.sites.shortcuts import get_current_site
 from django import template
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = get_user_model()
-        fields = ('id', 'firstname', 'lastname', 'email', 'password')
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 8}}
+class RegisterUser(APIView):
+    permission_classes = (AllowAny,)
 
-    def create(self, validated_data):
-        user = get_user_model().objects.create_user(**validated_data)
-        user.is_active = True 
-
-        user.save()
-
-        return user
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @permission_classes([IsAuthenticated])
+
+@permission_classes([IsAuthenticated])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
@@ -57,12 +55,27 @@ class UserViewSet(viewsets.ModelViewSet):
         raise PermissionDenied()
 
 
+
 class CurrentUserView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request, *args, **kwargs):
+        try:
+            # Get the token from request data or headers
+            
+            refresh_token = request.data.get('refresh_token')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            print(token.blacklist)  # This blacklists the token
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            # Handle the error
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # ==================================================
