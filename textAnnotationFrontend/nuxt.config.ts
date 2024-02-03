@@ -1,15 +1,24 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-
+  css: ['~/assets/css/main.css'],
   modules: [
     '@nuxtjs/tailwindcss',
     'nuxt-socket-io',
+    '@pinia/nuxt',
   ],
+
 
   plugins: [
     '~/plugins/socket.io.js',
   ],
+
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
+  },
 
   io: {
     // module options
@@ -23,6 +32,6 @@ export default defineNuxtConfig({
     public: {
       baseURL: process.env.BASE_URL // The actual API URL
     }
-  }
+  },
   
 })
