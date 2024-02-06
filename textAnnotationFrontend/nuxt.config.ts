@@ -3,9 +3,10 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   modules: [
-    '@nuxtjs/tailwindcss',
+    // '@nuxtjs/tailwindcss',
     'nuxt-socket-io',
     '@pinia/nuxt',
+    '@nuxt/ui',
   ],
 
 
@@ -13,12 +14,12 @@ export default defineNuxtConfig({
     '~/plugins/socket.io.js',
   ],
 
-  postcss: {
-    plugins: {
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
+  // postcss: {
+  //   plugins: {
+  //     tailwindcss: {},
+  //     autoprefixer: {},
+  //   },
+  // },
 
   io: {
     // module options
@@ -33,5 +34,10 @@ export default defineNuxtConfig({
       baseURL: process.env.BASE_URL // The actual API URL
     }
   },
-  
+
+  // nuxt/ui only light theme 
+  colorMode: {
+    preference: 'light'
+  }
+
 })
