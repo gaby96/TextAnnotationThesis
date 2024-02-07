@@ -32,7 +32,7 @@ const otherLinks = [{
     to: '/portal/settings'
 }, {
     label: 'Logout',
-    icon: 'i-heroicons-command-line',
+    icon: 'i-heroicons-arrow-right-on-rectangle-solid',
     to: '/portal/logout',
 }]
 </script>

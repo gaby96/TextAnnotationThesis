@@ -30,7 +30,7 @@
 <script setup>
 
 definePageMeta({
-    //   middleware: 'authuser'
+    middleware: 'authuser'
 });
 
 </script>
