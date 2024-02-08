@@ -1,19 +1,19 @@
 <template>
-    <v-app>
-      <the-header />
-      <slot />
-      <!-- <the-footer /> -->
-    </v-app>
-  </template>
+ 
+     <the-header class="" v-if="!useAuthStore().accessToken" />
+    <slot />
+    <!-- <the-footer /> -->
+</template>
   
-  <script>
+<script>
 //   import TheFooter from '@/components/layout/TheFooter'
-  import TheHeader from '@/components/TheHeader'
-  
-  export default {
-    components: {
+import TheHeader from '@/components/TheHeader'
+import { useAuthStore } from '#imports';
+
+export default {
+  components: {
     //   TheFooter,
-      TheHeader
-    }
+    TheHeader
   }
-  </script>
+}
+</script>
