@@ -4,15 +4,11 @@ from rest_polymorphic.serializers import PolymorphicSerializer
 
 from .models import (
     BoundingBoxProject,
-    ImageCaptioningProject,
-    ImageClassificationProject,
     IntentDetectionAndSlotFillingProject,
     Member,
     Project,
-    SegmentationProject,
     Seq2seqProject,
     SequenceLabelingProject,
-    Speech2textProject,
     Tag,
     TextClassificationProject,
 )
@@ -34,7 +30,7 @@ class MemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Member
-        fields = ("id", "user", "role", "email", "rolename")
+        fields = ("id", "user", "role", "email", "rolename", 'username')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -68,7 +64,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             "project_type",
             "created_at",
             "updated_at",
-            "random_order",
             "author",
             "collaborative_annotation",
             "single_class_classification",
@@ -118,29 +113,10 @@ class IntentDetectionAndSlotFillingProjectSerializer(ProjectSerializer):
         model = IntentDetectionAndSlotFillingProject
 
 
-class Speech2textProjectSerializer(ProjectSerializer):
-    class Meta(ProjectSerializer.Meta):
-        model = Speech2textProject
-
-
-class ImageClassificationProjectSerializer(ProjectSerializer):
-    class Meta(ProjectSerializer.Meta):
-        model = ImageClassificationProject
-
 
 class BoundingBoxProjectSerializer(ProjectSerializer):
     class Meta(ProjectSerializer.Meta):
         model = BoundingBoxProject
-
-
-class SegmentationProjectSerializer(ProjectSerializer):
-    class Meta(ProjectSerializer.Meta):
-        model = SegmentationProject
-
-
-class ImageCaptioningProjectSerializer(ProjectSerializer):
-    class Meta(ProjectSerializer.Meta):
-        model = ImageCaptioningProject
 
 
 class ProjectPolymorphicSerializer(PolymorphicSerializer):

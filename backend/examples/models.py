@@ -16,7 +16,7 @@ class Example(models.Model):
     meta = models.JSONField(default=dict)
     filename = models.FileField(default=".", max_length=1024, storage=DrfFilePondStoredStorage())
     upload_name = models.CharField(max_length=512)
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="examples")
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="examples", null=True)
     annotations_approved_by = models.ForeignKey(to=User, on_delete=models.SET_NULL, null=True, blank=True)
     text = models.TextField(null=True, blank=True)
     score = models.FloatField(default=100)
@@ -40,9 +40,9 @@ class Example(models.Model):
 
 class Assignment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="assignments")
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="assignments")
-    assignee = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="assignments", null=True)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="assignments", null=True)
+    assignee = models.ForeignKey(to=User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -63,8 +63,8 @@ class Assignment(models.Model):
 
 class ExampleState(models.Model):
     objects = ExampleStateManager()
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="states")
-    confirmed_by = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="states", null=True)
+    confirmed_by = models.ForeignKey(to=User, on_delete=models.CASCADE, null=True)
     confirmed_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -73,7 +73,7 @@ class ExampleState(models.Model):
 
 class Comment(models.Model):
     text = models.TextField()
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="comments")
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="comments", null=True)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)

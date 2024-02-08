@@ -23,7 +23,7 @@ class Label(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     prob = models.FloatField(default=0.0)
     manual = models.BooleanField(default=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,8 +33,8 @@ class Label(models.Model):
 
 class Category(Label):
     objects = CategoryManager()
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="categories")
-    label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="categories", null=True)
+    label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE, null=True)
 
     class Meta:
         unique_together = ("example", "user", "label")
@@ -42,8 +42,8 @@ class Category(Label):
 
 class Span(Label):
     objects = SpanManager()
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="spans")
-    label = models.ForeignKey(to=SpanType, on_delete=models.CASCADE)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="spans", null=True)
+    label = models.ForeignKey(to=SpanType, on_delete=models.CASCADE, null=True)
     start_offset = models.IntegerField()
     end_offset = models.IntegerField()
 
@@ -95,7 +95,7 @@ class Span(Label):
 
 class TextLabel(Label):
     objects = TextLabelManager()
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="texts")
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="texts", null=True)
     text = models.TextField()
 
     def is_same_text(self, other: "TextLabel"):
@@ -107,10 +107,10 @@ class TextLabel(Label):
 
 class Relation(Label):
     objects = RelationManager()
-    from_id = models.ForeignKey(Span, on_delete=models.CASCADE, related_name="from_relations")
-    to_id = models.ForeignKey(Span, on_delete=models.CASCADE, related_name="to_relations")
-    type = models.ForeignKey(RelationType, on_delete=models.CASCADE)
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="relations")
+    from_id = models.ForeignKey(Span, on_delete=models.CASCADE, related_name="from_relations", null=True)
+    to_id = models.ForeignKey(Span, on_delete=models.CASCADE, related_name="to_relations", null=True)
+    type = models.ForeignKey(RelationType, on_delete=models.CASCADE, null=True)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="relations", null=True)
 
     def __str__(self):
         text = self.example.text
@@ -136,8 +136,8 @@ class BoundingBox(Label):
     y = models.FloatField()
     width = models.FloatField()
     height = models.FloatField()
-    label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE)
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="bboxes")
+    label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE, null=True)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="bboxes", null=True)
 
     class Meta:
         constraints = [
@@ -151,5 +151,5 @@ class BoundingBox(Label):
 class Segmentation(Label):
     objects = SegmentationManager()
     points = models.JSONField(default=list)
-    label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE)
-    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="segmentations")
+    label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE, null=True)
+    example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="segmentations", null=True)

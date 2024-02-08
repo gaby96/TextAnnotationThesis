@@ -25,6 +25,7 @@ class LabelType(models.Model):
     project = models.ForeignKey(
         to=Project,
         on_delete=models.CASCADE,
+        null=True
         # related_name='labels'
     )
     background_color = models.CharField(max_length=7, default=generate_random_hex_color)

@@ -19,13 +19,9 @@ from polymorphic.models import PolymorphicModel
 class ProjectType(models.TextChoices):
     DOCUMENT_CLASSIFICATION = "DocumentClassification"
     SEQUENCE_LABELING = "SequenceLabeling"
-    SEQ2SEQ = "Seq2seq"
     INTENT_DETECTION_AND_SLOT_FILLING = "IntentDetectionAndSlotFilling"
-    SPEECH2TEXT = "Speech2text"
     IMAGE_CLASSIFICATION = "ImageClassification"
     BOUNDING_BOX = "BoundingBox"
-    SEGMENTATION = "Segmentation"
-    IMAGE_CAPTIONING = "ImageCaptioning"
 
 
 class Project(PolymorphicModel):
@@ -40,7 +36,6 @@ class Project(PolymorphicModel):
         null=True,
     )
     project_type = models.CharField(max_length=30, choices=ProjectType.choices)
-    random_order = models.BooleanField(default=False)
     collaborative_annotation = models.BooleanField(default=False)
     single_class_classification = models.BooleanField(default=False)
     allow_member_to_create_label_type = models.BooleanField(default=False)
@@ -146,36 +141,11 @@ class IntentDetectionAndSlotFillingProject(Project):
         return True
     
 
-class Speech2textProject(Project):
-    @property
-    def is_text_project(self) -> bool:
-        return False
-    
-
-class ImageClassificationProject(Project):
-    @property
-    def is_text_project(self) -> bool:
-        return False
-
 
 class BoundingBoxProject(Project):
     @property
     def is_text_project(self) -> bool:
         return False
-
-
-class SegmentationProject(Project):
-    @property
-    def is_text_project(self) -> bool:
-        return False
-
-
-class ImageCaptioningProject(Project):
-    @property
-    def is_text_project(self) -> bool:
-        return False
-    
-
 
 
 class Tag(models.Model):
@@ -211,9 +181,9 @@ class MemberManager(Manager):
 
 
 class Member(models.Model):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="role_mappings")
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="role_mappings")
-    role = models.ForeignKey(to=Role, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="role_mappings", null=True)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="role_mappings", null=True)
+    role = models.ForeignKey(to=Role, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = MemberManager()
