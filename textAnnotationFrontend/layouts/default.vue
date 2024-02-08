@@ -1,9 +1,8 @@
 <template>
-  <v-app>
-    <!-- <the-header class="" v-if="!useAuthStore().accessToken" /> -->
+ 
+     <the-header class="" v-if="!useAuthStore().accessToken" />
     <slot />
     <!-- <the-footer /> -->
-  </v-app>
 </template>
   
 <script>
