@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    accessToken: localStorage.getItem('accessToken') || null, // Retrieve token from storage on initialization
-    refreshToken: localStorage.getItem('refreshToken') || null,
-    isloading: false
+    accessToken: null, // Initialize as null
+    refreshToken: null,
+    isLoading: false
   }),
 
   getters: {
@@ -13,20 +13,29 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
+    initializeFromLocalStorage() {
+      if (typeof window !== "undefined") {
+        this.accessToken = localStorage.getItem('accessToken') || null;
+        this.refreshToken = localStorage.getItem('refreshToken') || null;
+      }
+    },
     setTokens({ accessToken, refreshToken }) {
-      this.accessToken = accessToken
-      this.refreshToken = refreshToken
+      this.accessToken = accessToken;
+      this.refreshToken = refreshToken;
 
-      // Optionally, store the tokens in localStorage or sessionStorage for persistence
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
+      if (typeof window !== "undefined") {
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+      }
     },
     clearTokens() {
-      this.accessToken = null
-      this.refreshToken = null
+      this.accessToken = null;
+      this.refreshToken = null;
 
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+      if (typeof window !== "undefined") {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
     },
     async login(credentials, apiUrl) {
       try {

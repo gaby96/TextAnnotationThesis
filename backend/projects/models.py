@@ -22,6 +22,7 @@ class ProjectType(models.TextChoices):
     INTENT_DETECTION_AND_SLOT_FILLING = "IntentDetectionAndSlotFilling"
     IMAGE_CLASSIFICATION = "ImageClassification"
     BOUNDING_BOX = "BoundingBox"
+    SEQ2SEQ = "Seq2seq"
 
 
 class Project(PolymorphicModel):
@@ -38,6 +39,7 @@ class Project(PolymorphicModel):
     project_type = models.CharField(max_length=30, choices=ProjectType.choices)
     collaborative_annotation = models.BooleanField(default=False)
     single_class_classification = models.BooleanField(default=False)
+    random_order = models.BooleanField(default=False, null=True)
     allow_member_to_create_label_type = models.BooleanField(default=False)
 
     def add_admin(self):
