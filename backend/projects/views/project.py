@@ -24,7 +24,7 @@ class ProjectList(generics.ListCreateAPIView):
                 IsAuthenticated,
             ]
         else:
-            self.permission_classes = [IsAuthenticated & IsAdminUser]
+            self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
 
     def get_queryset(self):
