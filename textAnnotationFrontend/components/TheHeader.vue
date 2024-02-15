@@ -1,8 +1,8 @@
 <template>
   <nav
-    class="sticky top-0 bg-white flex w-full flex-wrap items-center justify-between py-2 hover:text-neutral-700 focus:text-neutral-700 lg:py-4"
+    class="relative flex w-full flex-wrap items-center justify-between py-2 hover:text-neutral-700 focus:text-neutral-700 lg:py-4"
     data-te-navbar-ref>
-    <div class="flex w-full flex-wrap items-center justify-between px-3">
+    <div class="flex w-full flex-wrap items-center justify-between px-24">
       <div>
         <a class="mx-2 my-1 flex items-center text-neutral-900 hover:text-neutral-900 focus:text-neutral-900 lg:mb-0 lg:mt-0"
           href="#">
@@ -37,18 +37,18 @@
         <div class="flex items-center">
           <div class="divide-x-2 divide-black-300">
             <button type="button" data-te-ripple-init data-te-ripple-color="light"
-              class="mr-3 inline-block rounded px-6 pb-1 pt-1 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:bg-neutral-100 hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 motion-reduce:transition-none">
+              class="mr-3 inline-block rounded px-6 pb-1 pt-1 text-base font-medium normal-case leading-normal text-primary transition duration-150 ease-in-out hover:bg-neutral-100 hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 motion-reduce:transition-none">
               Support
             </button>
 
 
             <nuxt-link to="/auth/login"
-              class="mr-3 inline-block rounded px-6 pb-1 pt-1 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:bg-neutral-100 hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 motion-reduce:transition-none">
+              class="mr-3 inline-block rounded px-6 pb-1 pt-1 text-base font-medium normal-case leading-normal text-primary transition duration-150 ease-in-out hover:bg-neutral-100 hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 motion-reduce:transition-none">
               Login
             </nuxt-link>
           </div>
           <nuxt-link type="button" to="/auth/signup"
-            class="inline-block rounded border border-black px-6 pb-1 pt-1 text-xs font-medium uppercase leading-normal text-neutral-800 transition duration-150 ease-in-out hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none focus:ring-0 active:bg-neutral-200">
+            class="inline-block rounded-lg border border-gray-300 px-3 py-1 text-base font-medium normal-case leading-normal text-neutral-800 transition duration-150 ease-in-out hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none focus:ring-0 active:bg-neutral-200 ">
             Create free Account
           </nuxt-link>
 
