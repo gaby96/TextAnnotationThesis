@@ -69,7 +69,7 @@ const password = ref('')
 const username = ref('')
 
 async function registerUser() {
-  const { data, error } = await useFetch(`${apiUrl}auth/signup`, {
+  const { data, error } = await useFetch(`${apiUrl}/auth/signup`, {
     method: 'POST',
     body: JSON.stringify({
       first_name: firstName.value,

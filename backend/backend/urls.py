@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include("users.urls")),
     path('roles/', include("roles.urls")),
-    path('project/', include("projects.urls"))
+    path('project/', include("projects.urls")),
+    path("project/<int:project_id>/", include("label_types.urls")),
 ]
