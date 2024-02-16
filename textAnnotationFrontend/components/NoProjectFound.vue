@@ -1,5 +1,5 @@
 <template>
-    <div class="">
+    <div>
         <div class="flex flex-col items-center justify-center py-12 h-full mt-40">
             <div>
                 <a class="mx-2 my-1 flex items-center text-neutral-900 hover:text-neutral-900 focus:text-neutral-900 lg:mb-0 lg:mt-0"
@@ -12,7 +12,7 @@
             </p>
 
             <!-- button -->
-            <NuxtLink to="/portal/add-document">
+            <NuxtLink to="/portal/create-project">
                 <button style="background-color: #047857; border-radius: 4px; color: white;"
                     class="mt-6 px-4 py-2 text-white font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green rounded-lg">
                     <!-- Added rounded-lg for more pronounced curves -->
@@ -32,4 +32,4 @@
 
 </script>
 
-<style lang="scss" scoped></style>
+<style  scoped></style>
