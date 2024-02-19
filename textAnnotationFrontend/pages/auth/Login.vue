@@ -32,7 +32,11 @@
                         </div>
                         <a href="#" style="color: #047857" class="text-sm font-medium text-primary-600 hover:underline ">Forgot password?</a>
                     </div>
-                    <button type="submit" style="background-color: #047857; color: white;" class="w-full text-white hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-green-700 dark:focus:ring-green-800">{{ auth.isloading ? "Login...." : "Login" }}</button>
+                    <button type="submit" 
+                            style="background-color: #047857; color: white;" 
+                            class="w-full text-white hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-green-700 dark:focus:ring-green-800">
+                            {{ auth.isLoading ? "Login...." : "Login" }}
+                    </button>
 
                     <p class="text-sm font-light text-gray-500 dark:text-gray-400">
                         Dont have an account yet? <a href="#" style="color: #047857;" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
@@ -47,8 +51,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth';
-const auth = useAuthStore();
+import { useProjectsStore } from '@/stores/projects';
 
+const auth = useAuthStore();
+const projects = useProjectsStore();
 
 const config = useRuntimeConfig()
 
@@ -59,12 +65,19 @@ const authStore = useAuthStore()
 const login = async () => {
   const success = await authStore.login({ username: username.value, password: password.value }, config.public.baseURL);
   if (success) {
-    // Redirect to dashboard if login is successful
-    navigateTo('/emptydashboard');
-  } else {
+    // Assuming fetchProjects is an action in your projects store that populates the projects array.
+    // This call ensures that your projects data is up to date after login.
+     
+        navigateTo('/portal/home');
+    
+    
+  } 
+
+  else {
     // Optionally handle login failure (e.g., show an error message)
     alert('Login failed. Please check your credentials.');
   }
+
 };
 </script>
 

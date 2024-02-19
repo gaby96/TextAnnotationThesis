@@ -46,7 +46,7 @@
     </div>
 
     <div class="space-x-4 mt-8">
-      <button type="submit" class="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50">Save</button>
+      <button type="submit" @click="submitForm()" style="background-color: #047857" class="py-2 px-4 bg-blue-500 text-white rounded disabled:opacity-50">Save</button>
 
       <!-- Secondary -->
       <button class="py-2 px-4 bg-white border border-gray-200 text-gray-600 rounded hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50">Cancel</button>
@@ -111,7 +111,7 @@
 </style>
 
 <script>
-
+import { useAuthStore } from '@/stores/auth';
 export default {
   name: 'CreateLabel',
   data() {
@@ -139,6 +139,11 @@ export default {
         .filter(item => item !== this.suffixKey);
       const allSuffixKeys = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
       return allSuffixKeys.filter(item => !usedSuffixKeys.includes(item));
+    },
+
+    projectId() {
+        console.log(this.$route.params.id)
+      return this.$route.params.id
     },
 
     predefinedColors() {
@@ -188,6 +193,51 @@ export default {
   methods: {
     setColor(color) {
     this.backgroundColor = color;
+  },
+
+  // async create(projectId, item):  {
+  //   const url = `/projects/${projectId}/${this.baseUrl}s`
+  //   const payload = toPayload(item)
+  //   const response = await this.request.post(url, payload)
+  //   return toModel(response.data)
+  // },
+
+  async submitForm() {
+    const authStore = useAuthStore()
+    const token = authStore.accessToken
+
+    // Prepare the payload including textColor 
+    const payload = JSON.stringify({
+      text: this.label_name,
+      suffix_key: this.suffixKey,
+      background_color: this.backgroundColor,
+      text_color: this.textColor, // Include the computed textColor here
+    });
+    
+
+    try {
+      const config = useRuntimeConfig()
+      const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: payload,
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Handle success
+      const data = await response.json();
+      console.log(data);
+      // Possibly redirect the user or clear the form
+    } catch (error) {
+      console.error('There was a problem with your fetch operation:', error);
+      // Handle the error, possibly show user feedback
+    }
   },
 
     isUsedName(text){

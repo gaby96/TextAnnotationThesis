@@ -1,66 +1,67 @@
 // stores/auth.js
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    accessToken: null, // Initialize as null
-    refreshToken: null,
-    isLoading: false
-  }),
+export const useAuthStore = defineStore('auth', () => {
 
-  getters: {
-    isAuthenticated: (state) => !!state.accessToken, // Checks if accessToken is not null or undefined
-  },
+  const accessToken = ref('');
+  const refreshToken = ref('');
+  const isLoading = ref(false);
+  const isLoggedIn = ref(false)
 
-  actions: {
-    initializeFromLocalStorage() {
-      if (typeof window !== "undefined") {
-        this.accessToken = localStorage.getItem('accessToken') || null;
-        this.refreshToken = localStorage.getItem('refreshToken') || null;
+  async function setTokens({ accessToken, refreshToken }) {
+    accessToken.value = accessToken;
+    refreshToken.value = refreshToken;
+
+    
+  };
+
+  async function clearTokens() {
+    accessToken.value = null;
+    refreshToken.value = null;
+
+    if (typeof window !== "undefined") {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  };
+
+  async function isAuthenticated() {
+    let authToken = accessToken.value;
+    if (authToken) {
+      return True
+    }
+    else {
+      return False
+    }
+
+  };
+  async function login(credentials, apiUrl ) {
+    try {
+      this.isLoading = true
+      const response = await fetch(`${apiUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      })
+      const data = await response.json()
+      if (response.ok) {
+        this.accessToken = data.access
+        this.refreshToken = data.refresh
+        this.isLoggedIn = true
+        this.isLoading = false
+        return true;
+      } else {
+        throw new Error(data.detail || 'Login failed')
       }
-    },
-    setTokens({ accessToken, refreshToken }) {
-      this.accessToken = accessToken;
-      this.refreshToken = refreshToken;
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-      }
-    },
-    clearTokens() {
-      this.accessToken = null;
-      this.refreshToken = null;
-
-      if (typeof window !== "undefined") {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-      }
-    },
-    async login(credentials, apiUrl) {
-      try {
-        this.isloading = true
-        const response = await fetch(`${apiUrl}/auth/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(credentials),
-        })
-        const data = await response.json()
-        if (response.ok) {
-          this.setTokens({ accessToken: data.access, refreshToken: data.refresh })
-          this.isloading = false
-          return true;
-        } else {
-          throw new Error(data.detail || 'Login failed')
-        }
-      } catch (error) {
-        console.error('Login error:', error.message)
-        throw error
-      }
-    },
-    async logout() {
-      this.clearTokens()
-      // Additional logout actions like redirecting the user
-    },
-  },
-})
+    } catch (error) {
+      console.error('Login error:', error.message)
+      throw error
+    }
+  };
+  async function logout() {
+    this.clearTokens()
+    // Additional logout actions like redirecting the user
+  };
+  return { accessToken, refreshToken, isLoading, isLoggedIn, setTokens, clearTokens, isAuthenticated, login, logout }
+}, { persist: { persist: true } })
