@@ -12,7 +12,7 @@
                 <h1 class="mt-4 text-black text-2xl font-semibold text-center">No project found</h1>
                 <p class="mt-2 text-black text-center">All your projects will be displayed here
                 </p>
-                <nuxt-link type="button" to="/createproject" style="background-color: #047857; border-radius: 4px; color: white;"
+                <nuxt-link type="button" to="/project/createproject" style="background-color: #047857; border-radius: 4px; color: white;"
                     class="mt-6 px-4 py-2 text-white font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green rounded-lg">
                     <!-- Added rounded-lg for more pronounced curves -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 16 16"

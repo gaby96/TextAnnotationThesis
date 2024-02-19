@@ -1,19 +1,20 @@
 <template>
-  <v-app>
-    <the-header />
+
+    <the-header v-if="!authStore.isLoggedIn" />
     <slot />
     <!-- <the-footer /> -->
-  </v-app>
+ 
 </template>
   
-<script>
-//   import TheFooter from '@/components/layout/TheFooter'
-import TheHeader from '@/components/TheHeader'
+<script setup>
+import { computed, onMounted, ref } from 'vue';
+import TheHeader from '@/components/TheHeader';
+import { useAuthStore } from '@/stores/auth';
 
-export default {
-  components: {
-    //   TheFooter,
-    TheHeader
-  }
-}
+// Directly use `useAuthStore` to manage authentication state.
+const authStore = useAuthStore();
+
+
+
+
 </script>

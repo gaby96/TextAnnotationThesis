@@ -183,6 +183,7 @@
 
 
 <script>
+import { useAuthStore } from '@/stores/auth';
 export default {
   data() {
     return {
@@ -221,8 +222,9 @@ export default {
     },
 
     async submitForm() {
-    const apiUrl = process.env.BASE_URL;
-    const token = localStorage.getItem('accessToken');
+      const authStore = useAuthStore()
+      const token = authStore.accessToken
+      
    // Correctly extract the resource type key and project type value
     const resource_type = Object.keys(this.selectedProjectTypeObject)[0];
     const project_type = Object.values(this.selectedProjectTypeObject)[0];
@@ -261,7 +263,9 @@ export default {
 
       // Handle success
       const data = await response.json();
-      console.log(data);
+      if(data){
+        navigateTo('/portal/home');
+      }
       // Possibly redirect the user or clear the form
     } catch (error) {
       console.error('There was a problem with your fetch operation:', error);

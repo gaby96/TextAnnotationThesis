@@ -1,21 +1,27 @@
 // middleware/auth.js
 import { useAuthStore } from '@/stores/auth';
+import {useProjectsStore} from '@/stores/projects';
+
 export default defineNuxtRouteMiddleware((to, from) => {
-    if (process.client) { // Ensure this code runs only on the client side
-        // Access the global Nuxt app instance
+    if (process.client) {
+       
+        const projects = useProjectsStore();
         const auth = useAuthStore();
-      
         // Check if accessToken exists in localStorage
-        const accessToken = localStorage.getItem('accessToken');
+        const accessToken = auth.isLoggedIn
       
         // If there's no accessToken and the user is not trying to access the login page, redirect to login
-        if (!accessToken && to.path !== 'auth/login') {
+        if (!auth.accessToken && to.path !== 'auth/login') {
           return navigateTo('auth/login');
         }
       
         // If there's an accessToken, you might want to validate it or ensure the user isn't navigating to the login page
-        if (accessToken && to.path === 'auth/login') {
-          return navigateTo('/emptydashboard'); // Redirect to the homepage or dashboard
+        if (auth.accessToken && to.path === 'auth/login') {
+            // Here, we check if the projects array is not empty
+            
+              return navigateTo('/portal/home');
+          
+          
         }
       }
   });

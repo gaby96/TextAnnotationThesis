@@ -111,7 +111,7 @@
 </style>
 
 <script>
-
+import { useAuthStore } from '@/stores/auth';
 export default {
   name: 'CreateLabel',
   data() {
@@ -139,6 +139,11 @@ export default {
         .filter(item => item !== this.suffixKey);
       const allSuffixKeys = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
       return allSuffixKeys.filter(item => !usedSuffixKeys.includes(item));
+    },
+
+    projectId() {
+        console.log(this.$route.params.id)
+      return this.$route.params.id
     },
 
     predefinedColors() {
@@ -198,8 +203,8 @@ export default {
   // },
 
   async submitForm() {
-    const apiUrl = process.env.BASE_URL;
-    const token = localStorage.getItem('accessToken');
+    const authStore = useAuthStore()
+    const token = authStore.accessToken
 
     // Prepare the payload including textColor 
     const payload = JSON.stringify({
@@ -208,11 +213,11 @@ export default {
       background_color: this.backgroundColor,
       text_color: this.textColor, // Include the computed textColor here
     });
-    console.log(payload)
+    
 
     try {
       const config = useRuntimeConfig()
-      const response = await fetch(`${config.public.baseURL}/project/7/category-types`, {
+      const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
