@@ -6,7 +6,7 @@
   
   <script>
   import TheBanner from '@/components/TheBanner'
-  import TipTap from '@/components/Tiptap'
+  
   
   
   export default {

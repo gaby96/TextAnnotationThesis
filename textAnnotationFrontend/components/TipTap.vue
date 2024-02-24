@@ -31,22 +31,22 @@ export default {
     };
   },
   mounted() {
-    this.socket = io('http://localhost:3001');
+//     this.socket = io('http://localhost:3001');
 
-    this.socket.on('text-change', ({ text, senderId }) => {
-      if (senderId !== this.socket.id) {
-        const currentPos = this.getCurrentCursorPosition();
-        this.text = text;
-        this.setCaretPosition(currentPos);
-      }
-    });
+//     this.socket.on('text-change', ({ text, senderId }) => {
+//       if (senderId !== this.socket.id) {
+//         const currentPos = this.getCurrentCursorPosition();
+//         this.text = text;
+//         this.setCaretPosition(currentPos);
+//       }
+//     });
 
- this.socket.on('cursor-move', (data) => {
-      if (data.id !== this.socket.id) {
-        // Directly assign new properties to the cursors object
-        this.cursors[data.id] = { position: data.position, color: data.color };
-      }
-    });
+//  this.socket.on('cursor-move', (data) => {
+//       if (data.id !== this.socket.id) {
+//         // Directly assign new properties to the cursors object
+//         this.cursors[data.id] = { position: data.position, color: data.color };
+//       }
+//     });
   },
   methods: {
     onFocus(event) {
