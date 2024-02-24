@@ -17,7 +17,7 @@
             <tr class="hover:bg-gray-50" v-for="project in projects" :key="project.id">
               <td class="px-6 py-4 font-medium text-gray-900">
                 <!-- Update this line -->
-                <RouterLink :to="`/project/${project.id}/index`" class="text-blue-500 hover:text-blue-700">{{ project.name }}</RouterLink>
+                <RouterLink :to="`/project/${project.id}/portal`" class="text-blue-500 hover:text-blue-700">{{ project.name }}</RouterLink>
               </td>
               <td class="px-6 py-4">{{ project.description }}</td>
               <td class="px-6 py-4">{{ project.project_type }}</td>
@@ -91,13 +91,14 @@ onMounted(async () => {
         // Optionally: Remove the project from the local state to update the UI
         const projectsStore = useProjectsStore();
         projectsStore.projects = projectsStore.projects.filter(project => project.id !== id);
-
         // Optionally: Show a success message
         console.log('Project deleted successfully');
       } catch (error) {
         console.error('Error deleting project:', error);
       }
     };
+
+    
   
 
 </script>

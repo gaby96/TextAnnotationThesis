@@ -2,7 +2,6 @@
   <div>
     <!-- Conditional rendering based on projects array length -->
     <div v-if="hasProjects" >
-      <Portal/>
       <ListProjects />
     </div>
     <NoProjectFound v-else />
@@ -14,7 +13,6 @@ import { computed } from 'vue';
 import { useProjectsStore } from '@/stores/projects';
 import NoProjectFound from '@/components/NoProjectFound.vue';
 import ListProjects from '@/components/ListProjects.vue';
-import Portal from '@/components/portal.vue';
 
 const projectsStore = useProjectsStore();
 

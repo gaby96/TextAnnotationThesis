@@ -112,6 +112,7 @@
 
 <script>
 import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 export default {
   name: 'CreateLabel',
   data() {
@@ -205,7 +206,6 @@ export default {
   async submitForm() {
     const authStore = useAuthStore()
     const token = authStore.accessToken
-
     // Prepare the payload including textColor 
     const payload = JSON.stringify({
       text: this.label_name,
@@ -234,6 +234,8 @@ export default {
       const data = await response.json();
       console.log(data);
       // Possibly redirect the user or clear the form
+      // Redirect the user to the desired page
+      navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
     } catch (error) {
       console.error('There was a problem with your fetch operation:', error);
       // Handle the error, possibly show user feedback

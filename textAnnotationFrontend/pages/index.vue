@@ -1,7 +1,7 @@
 <template>
     <v-main>
       <the-banner />
-        <tip-tap/>
+        <!-- <tip-tap/> -->
       <!-- <feature-cards />
       <the-bottom-banner /> -->
       <!-- <p>Hello</p>  -->
@@ -11,7 +11,7 @@
   <script>
 //   import FeatureCards from '@/components/layout/FeatureCards'
   import TheBanner from '@/components/TheBanner'
-  import TipTap from '@/components/Tiptap'
+  // import TipTap from '@/components/Tiptap'
 //   import TheBottomBanner from '@/components/layout/TheBottomBanner'
   
   export default {

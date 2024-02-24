@@ -136,7 +136,6 @@ export default {
 
   computed: {
     projectId() {
-        console.log(this.$route.params.id)
       return this.$route.params.id
     },
 
@@ -156,6 +155,15 @@ export default {
 
 
     methods: {
+
+      setRandomColor() {
+      const maxVal = 0xffffff
+      const randomNumber = Math.floor(Math.random() * maxVal)
+      const randomString = randomNumber.toString(16)
+      const randColor = randomString.padStart(6, '0')
+      this.backgroundColor = `#${randColor.toUpperCase()}`
+      
+    },
 
         predefinedColors() {
       return [
@@ -183,6 +191,16 @@ export default {
       ]
     },
 
+    textColor() {
+      // Implement the logic to determine the text color based on backgroundColor
+      // For example, a simple implementation:
+      const hex = this.backgroundColor.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000000' : '#FFFFFF';
+    },
+
     async fetchLabelData() {
         const authStore = useAuthStore()
         const token = authStore.accessToken
@@ -196,9 +214,11 @@ export default {
                     },
             });
             const data = await response.json();
-            label_name.value = data.name;
-            suffixKey.value = data.suffixKey;
-            backgroundColor.value = data.backgroundColor;
+            // console.log(data)
+            this.label_name = data.text;
+            this.suffixKey = data.suffix_key;
+            this.backgroundColor = data.background_color;
+            this.textColor = data.text_color
             
         } catch (error) {
             console.error('Error fetching label data:', error);
@@ -208,8 +228,16 @@ export default {
     },
 
     mounted(){
-        fetchLabelData(labelId);
+        this.fetchLabelData();
+    },
+
+    watch: {
+    selectedColorIndex(value) {
+      if (value < this.predefinedColors.length) {
+        this.$emit('update:backgroundColor', this.predefinedColors[this.selectedColorIndex])
+      }
     }
+  },
 
 }
 
