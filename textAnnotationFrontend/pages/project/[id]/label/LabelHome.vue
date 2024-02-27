@@ -5,15 +5,18 @@
         <Portal/>
         <Labels />
       </div>
-      <NoLabelFound v-else />
+      <div v-else >
+        <Portal/>
+      <NoLabelFound />
+    </div>
     </div>
   </template>
   
   <script setup>
   import { computed } from 'vue';
   import { useLabelStore } from '@/stores/labels';
-  import NoLabelFound from '@/components/NoLabelFound.vue';
-  import Labels from '@/pages/project/[id]/label/[label_id]/Labels.vue';
+  import NoLabelFound from '@/pages/project/[id]/label/NoLabelFound.vue';
+  import Labels from '@/pages/project/[id]/label/Labels.vue';
   import Portal from '@/pages/project/[id]/portal.vue';
   
   const labelsStore = useLabelStore();
