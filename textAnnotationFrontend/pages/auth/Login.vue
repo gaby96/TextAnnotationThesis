@@ -65,12 +65,7 @@ const authStore = useAuthStore()
 const login = async () => {
   const success = await authStore.login({ username: username.value, password: password.value }, config.public.baseURL);
   if (success) {
-    // Assuming fetchProjects is an action in your projects store that populates the projects array.
-    // This call ensures that your projects data is up to date after login.
-     
         navigateTo('/portal/home');
-    
-    
   } 
 
   else {

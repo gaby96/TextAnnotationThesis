@@ -70,22 +70,26 @@ export default {
 
   methods: {
     updateLinks(projectId) {
-      // Dynamically set the links based on the projectId
       this.links = [
         { label: 'Home', icon: 'i-heroicons-home', to: '/portal/home' },
-        { label: 'Datasets', icon: 'i-heroicons-circle-stack', to: '/portal/home' },
-        {
-          label: 'Labels',
-          icon: 'i-heroicons-tag',
-          to: `/project/${projectId}/label/labelhome`,
-        },
-        { label: 'Members', icon: 'i-heroicons-users', to: '/portal/home' },
-        {
-          label: 'Comments',
-          icon: 'i-heroicons-chat-bubble-bottom-center-text',
-          to: '/portal/home',
-        },
       ];
+
+      if (projectId) {
+        this.links.push(
+          { label: 'Datasets', icon: 'i-heroicons-circle-stack', to: '/portal/datasets' }, // Assuming '/portal/datasets' is correct
+          {
+            label: 'Labels',
+            icon: 'i-heroicons-tag',
+            to: `/project/${projectId}/label/labelhome`,
+          },
+          { label: 'Members', icon: 'i-heroicons-users', to: '/portal/members' }, // Assuming '/portal/members' is correct
+          {
+            label: 'Comments',
+            icon: 'i-heroicons-chat-bubble-bottom-center-text',
+            to: '/portal/comments', // Assuming '/portal/comments' is correct
+          }
+        );
+      }
     },
   },
 

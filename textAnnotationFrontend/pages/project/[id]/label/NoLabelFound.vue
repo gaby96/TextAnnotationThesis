@@ -12,7 +12,7 @@
             </p>
 
             <!-- button -->
-            <NuxtLink to="/createproject">
+            <NuxtLink to=`/project/${this.projectId}/label/createlabel`>
                 <button style="background-color: #047857; border-radius: 4px; color: white;"
                     class="mt-6 px-4 py-2 text-white font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green rounded-lg">
                     <!-- Added rounded-lg for more pronounced curves -->
@@ -28,8 +28,16 @@
     </div>
 </template>
 
-<script setup>
+<script>
+export default {
+  name: 'Labels',
+  data() {
+    return {
+      projectId: this.$route.params.id, // Initialize projectId from route params
+    };
+  },
 
+}
 </script>
 
 <style  scoped></style>
