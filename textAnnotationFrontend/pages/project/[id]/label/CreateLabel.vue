@@ -196,12 +196,11 @@ export default {
     this.backgroundColor = color;
   },
 
-  // async create(projectId, item):  {
-  //   const url = `/projects/${projectId}/${this.baseUrl}s`
-  //   const payload = toPayload(item)
-  //   const response = await this.request.post(url, payload)
-  //   return toModel(response.data)
-  // },
+  async fetchLabels() {
+      const labelStore = useLabelStore();
+      await labelStore.fetchLabels(this.projectId);
+      this.labels = labelStore.labels; // Assuming labels is an array. Adjust based on your store's structure
+    },
 
   async submitForm() {
     const authStore = useAuthStore()
@@ -227,12 +226,14 @@ export default {
       });
 
       if (!response.ok) {
+        console.log(response.error)
         throw new Error('Network response was not ok');
+        
       }
 
       // Handle success
       const data = await response.json();
-      console.log(data);
+      this.fetchLabels();
       // Possibly redirect the user or clear the form
       // Redirect the user to the desired page
       navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
