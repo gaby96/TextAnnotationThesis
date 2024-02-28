@@ -28,4 +28,4 @@ export const useProjectsStore = defineStore('projects', () => {
     }
   }
   return { fetchProjects, projects }
-}, )
+}, { persist: { persist: true } })

@@ -28,4 +28,4 @@ export const useLabelStore = defineStore('labels', () => {
     }
   }
   return { fetchLabels, labels }
-}, { persist: { persist: true } })
+}, { persist: { persist: true } } )

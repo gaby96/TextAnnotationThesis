@@ -194,6 +194,7 @@ export default {
 
         // Update the local labels array to reflect the deletion
         this.labels = this.labels.filter(label => label.id !== id);
+        this.fetchLabels();
         console.log('Label deleted successfully');
       } catch (error) {
         console.error('Error deleting label:', error);
@@ -205,10 +206,5 @@ export default {
     }
   },
 
-  // computed: {
-  //   projectId() {
-  //     return this.$route.params.id
-  //   },
-  // }
 };
 </script>
