@@ -18,7 +18,7 @@ class MemberList(generics.ListCreateAPIView):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
     pagination_class = None
-    permission_classes = [IsAuthenticated & IsProjectAdmin]
+    permission_classes = [IsAuthenticated]
 
     def filter_queryset(self, queryset):
         queryset = queryset.filter(project=self.kwargs["project_id"])
@@ -42,7 +42,7 @@ class MemberDetail(generics.RetrieveUpdateAPIView):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
     lookup_url_kwarg = "member_id"
-    permission_classes = [IsAuthenticated & IsProjectAdmin]
+    permission_classes = [IsAuthenticated]
 
     def perform_update(self, serializer):
         project_id = self.kwargs["project_id"]

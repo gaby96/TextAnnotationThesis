@@ -30,7 +30,7 @@ class MemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Member
-        fields = ("id", "user", "role", "email", "rolename", 'username')
+        fields = ("id", "user", "role", "email", "rolename")
 
 
 class TagSerializer(serializers.ModelSerializer):
