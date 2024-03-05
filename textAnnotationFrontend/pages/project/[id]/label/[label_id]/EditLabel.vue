@@ -1,6 +1,6 @@
 <template>
     <div class="p-8 rounded border border-gray-200">
-     <h1 class="font-medium text-3xl">Create Label Type</h1>
+     <h1 class="font-medium text-3xl">Edit Label Type</h1>
     
        <div class="mt-8 grid lg:grid-cols-2 gap-4">
          <div>
@@ -46,7 +46,7 @@
        </div>
    
        <div class="space-x-4 mt-8">
-         <button type="submit" @click="submitForm()" style="background-color: #047857" class="py-2 px-4 bg-blue-500 text-white rounded disabled:opacity-50">Save</button>
+         <button type="submit" @click="editLabel()" style="background-color: #047857" class="py-2 px-4 bg-blue-500 text-white rounded disabled:opacity-50">Save</button>
    
          <!-- Secondary -->
          <button class="py-2 px-4 bg-white border border-gray-200 text-gray-600 rounded hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50">Cancel</button>
@@ -201,6 +201,39 @@ export default {
       return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000000' : '#FFFFFF';
     },
 
+        async editLabel() {
+        const authStore = useAuthStore();
+        const token = authStore.accessToken;
+        try {
+            const config = useRuntimeConfig();
+            const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types/${this.labelId}`, {
+                method: 'PUT', // or 'PATCH' if partially updating
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    text: this.label_name,
+                    suffix_key: this.suffixKey,
+                    background_color: this.backgroundColor,
+                    // Add any other fields that are being updated
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update the label');
+            }
+
+                  // Optionally, update local state or notify the user of success
+                  console.log('Label updated successfully');
+                  navigateTo(`/project/${this.projectId}/label/labelhome`);
+              } catch (error) {
+                  console.error('Error updating label:', error);
+                  // Handle error accordingly, such as displaying an error message to the user
+              }
+          },
+
+
     async fetchLabelData() {
         const authStore = useAuthStore()
         const token = authStore.accessToken
@@ -225,7 +258,13 @@ export default {
             // Handle error accordingly
         }
         }
+
+        
+
+
     },
+
+   
 
     mounted(){
         this.fetchLabelData();
