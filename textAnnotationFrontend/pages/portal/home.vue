@@ -1,20 +1,20 @@
 <template>
   <div>
-    <Portal />
+    <!-- <Portal /> -->
     <!-- Conditional rendering based on projects array length -->
-    <div v-if="hasProjects" >
+    <div v-if="hasProjects">
       <div class="relative inline-block text-right mt-5">
-          <div class="group ">
-            <RouterLink :to="`/project/createproject`" class="text-blue-500 hover:text-blue-700">
-              <button type="button"
-                  class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600  xl:ml-96 xs:ml-16 md:ml-32 sm:ml-16">
-                    Add Project
-                    <!-- Dropdown arrow -->
-              </button>
-            </RouterLink>
+        <div class="group ">
+          <RouterLink :to="`/project/createproject`" class="text-blue-500 hover:text-blue-700">
+            <button type="button"
+              class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600  xl:ml-96 xs:ml-16 md:ml-32 sm:ml-16">
+              Add Project
+              <!-- Dropdown arrow -->
+            </button>
+          </RouterLink>
 
-          </div>
-          </div>
+        </div>
+      </div>
 
       <ListProjects />
     </div>
