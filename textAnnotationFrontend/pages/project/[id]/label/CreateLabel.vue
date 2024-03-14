@@ -1,16 +1,19 @@
 <template>
- <div class="p-8 rounded border border-gray-200">
-  <h1 class="font-medium text-3xl">Create Label Type</h1>
- 
+  <div class="p-8 rounded border border-gray-200">
+    <h1 class="font-medium text-3xl">Create Label Type</h1>
+
     <div class="mt-8 grid lg:grid-cols-2 gap-4">
       <div>
         <label for="label-name" class="text-sm text-gray-700 block mb-1 font-medium">Label Name</label>
-        <input type="text" v-model="label_name" name="label-name" id="label-name" class="bg-gray-100 border border-gray-200 rounded py-1 px-3 block focus:ring-blue-500 focus:border-blue-500 text-gray-700 w-full" placeholder="Label Name" />
+        <input type="text" v-model="label_name" name="label-name" id="label-name"
+          class="bg-gray-100 border border-gray-200 rounded py-1 px-3 block focus:ring-blue-500 focus:border-blue-500 text-gray-700 w-full"
+          placeholder="Label Name" />
       </div>
 
       <div>
         <label for="suffix-key" class="text-sm text-gray-700 block mb-1 font-medium">Suffix Key</label>
-        <select v-model="suffixKey" id="suffix-key" class="bg-gray-100 border border-gray-200 rounded py-1 px-3 block focus:ring-blue-500 focus:border-blue-500 text-gray-700 w-full">
+        <select v-model="suffixKey" id="suffix-key"
+          class="bg-gray-100 border border-gray-200 rounded py-1 px-3 block focus:ring-blue-500 focus:border-blue-500 text-gray-700 w-full">
           <option disabled value="">Choose a Key</option>
           <option v-for="key in availableSuffixKeys" :value="key" :key="key">{{ key }}</option>
         </select>
@@ -18,19 +21,17 @@
 
       <div>
         <label for="color" class="text-sm text-gray-700 block mb-1 font-medium">Color</label>
-        <input type="text" name="color" id="color" v-model="backgroundColor" :rules="[rules.validColor]" @input="$emit('update:backgroundColor', $event)" class="bg-gray-100 border border-gray-200 rounded py-1 px-3 block focus:ring-blue-500 focus:border-blue-500 text-gray-700 w-full" placeholder="Color" />
+        <input type="text" name="color" id="color" v-model="backgroundColor" :rules="[rules.validColor]"
+          @input="$emit('update:backgroundColor', $event)"
+          class="bg-gray-100 border border-gray-200 rounded py-1 px-3 block focus:ring-blue-500 focus:border-blue-500 text-gray-700 w-full"
+          placeholder="Color" />
       </div>
     </div>
 
     <div class="mt-4">
       <div class="flex flex-wrap">
-        <div 
-          v-for="(color, index) in predefinedColors" 
-          :key="color" 
-          :style="{ backgroundColor: color }" 
-          @click="setColor(color)"
-          class="color-chip" 
-          >
+        <div v-for="(color, index) in predefinedColors" :key="color" :style="{ backgroundColor: color }"
+          @click="setColor(color)" class="color-chip">
         </div>
         <!-- Random Color Button -->
         <button @click="setRandomColor" class="ml-2 bg-gray-200 p-2 rounded">Random Color</button>
@@ -46,18 +47,19 @@
     </div>
 
     <div class="space-x-4 mt-8">
-      <button type="submit" @click="submitForm()" style="background-color: #047857" class="py-2 px-4 bg-blue-500 text-white rounded disabled:opacity-50">Save</button>
+      <button type="submit" @click="submitForm()" style="background-color: #047857"
+        class="py-2 px-4 bg-blue-500 text-white rounded disabled:opacity-50">Save</button>
 
       <!-- Secondary -->
-      <button class="py-2 px-4 bg-white border border-gray-200 text-gray-600 rounded hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50">Cancel</button>
+      <button @click="$router.back"
+        class="py-2 px-4 bg-white border border-gray-200 text-gray-600 rounded hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50">Cancel</button>
     </div>
-  
-</div>
+
+  </div>
 </template>
 
 
 <style scoped>
-
 .color-chip {
   height: 32px;
   width: 32px;
@@ -75,10 +77,13 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #fff; /* Avatar background color */
-  color: #000; /* Avatar text color */
+  background-color: #fff;
+  /* Avatar background color */
+  color: #000;
+  /* Avatar text color */
   font-weight: bold;
 }
+
 .preview-container {
   display: flex;
   flex-direction: column;
@@ -87,8 +92,10 @@
 
 .preview-title {
   font-weight: bold;
-  color: #000; /* Adjust the color as needed */
-  margin-bottom: 8px; /* Adjust spacing as needed */
+  color: #000;
+  /* Adjust the color as needed */
+  margin-bottom: 8px;
+  /* Adjust spacing as needed */
 }
 
 .preview-chip {
@@ -101,8 +108,10 @@
 }
 
 .preview-avatar {
-  background-color: white; /* Adjust background color as needed */
-  color: black; /* Adjust text color as needed */
+  background-color: white;
+  /* Adjust background color as needed */
+  color: black;
+  /* Adjust text color as needed */
   margin-left: 0.5rem;
   padding: 0.25rem 0.5rem;
   border-radius: 50%;
@@ -111,6 +120,10 @@
 </style>
 
 <script>
+definePageMeta({
+  layout: 'portal'
+})
+
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 export default {
@@ -143,7 +156,7 @@ export default {
     },
 
     projectId() {
-        console.log(this.$route.params.id)
+      console.log(this.$route.params.id)
       return this.$route.params.id
     },
 
@@ -193,57 +206,57 @@ export default {
   },
   methods: {
     setColor(color) {
-    this.backgroundColor = color;
-  },
+      this.backgroundColor = color;
+    },
 
-  async fetchLabels() {
+    async fetchLabels() {
       const labelStore = useLabelStore();
       await labelStore.fetchLabels(this.projectId);
       this.labels = labelStore.labels; // Assuming labels is an array. Adjust based on your store's structure
     },
 
-  async submitForm() {
-    const authStore = useAuthStore()
-    const token = authStore.accessToken
-    // Prepare the payload including textColor 
-    const payload = JSON.stringify({
-      text: this.label_name,
-      suffix_key: this.suffixKey,
-      background_color: this.backgroundColor,
-      text_color: this.textColor, // Include the computed textColor here
-    });
-    
-
-    try {
-      const config = useRuntimeConfig()
-      const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: payload,
+    async submitForm() {
+      const authStore = useAuthStore()
+      const token = authStore.accessToken
+      // Prepare the payload including textColor 
+      const payload = JSON.stringify({
+        text: this.label_name,
+        suffix_key: this.suffixKey,
+        background_color: this.backgroundColor,
+        text_color: this.textColor, // Include the computed textColor here
       });
 
-      if (!response.ok) {
-        console.log(response.error)
-        throw new Error('Network response was not ok');
-        
+
+      try {
+        const config = useRuntimeConfig()
+        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: payload,
+        });
+
+        if (!response.ok) {
+          console.log(response.error)
+          throw new Error('Network response was not ok');
+
+        }
+
+        // Handle success
+        const data = await response.json();
+        this.fetchLabels();
+        // Possibly redirect the user or clear the form
+        // Redirect the user to the desired page
+        navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
+      } catch (error) {
+        console.error('There was a problem with your fetch operation:', error);
+        // Handle the error, possibly show user feedback
       }
+    },
 
-      // Handle success
-      const data = await response.json();
-      this.fetchLabels();
-      // Possibly redirect the user or clear the form
-      // Redirect the user to the desired page
-      navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
-    } catch (error) {
-      console.error('There was a problem with your fetch operation:', error);
-      // Handle the error, possibly show user feedback
-    }
-  },
-
-    isUsedName(text){
+    isUsedName(text) {
       return this.items.filter((item) => item.id !== this.id && item.text === text).length > 0
     },
 
@@ -260,10 +273,9 @@ export default {
       const randomString = randomNumber.toString(16)
       const randColor = randomString.padStart(6, '0')
       this.backgroundColor = `#${randColor.toUpperCase()}`
-      
+
     }
   },
 };
 
 </script>
-

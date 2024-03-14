@@ -20,6 +20,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
       return navigateTo("/portal/home");
     }
 
+    // If there's an accessToken, you might want to validate it or ensure the user isn't navigating to the homepage
     if (auth.accessToken && to.path === "/") {
       // Here, we check if the projects array is not empty
       return navigateTo("/portal/home");

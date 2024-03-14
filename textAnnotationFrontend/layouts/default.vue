@@ -1,6 +1,6 @@
 <template>
-
-    <the-header v-if="!authStore.isLoggedIn" />
+    <!-- v-if="!authStore.isLoggedIn"  -->
+    <the-header />
     <slot />
     <!-- <the-footer /> -->
 

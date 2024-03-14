@@ -5,13 +5,13 @@
     <div v-if="hasProjects">
       <div class="relative inline-block text-right mt-5">
         <div class="group ">
-          <RouterLink :to="`/project/createproject`" class="text-blue-500 hover:text-blue-700">
+          <NuxtLink :to="`/project/createproject`">
             <button type="button"
-              class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600  xl:ml-96 xs:ml-16 md:ml-32 sm:ml-16">
-              Add Project
+              class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600 ">
+              Add Project <Icon name="heroicons:plus-16-solid" class="ml-1 text-xl"></Icon>
               <!-- Dropdown arrow -->
             </button>
-          </RouterLink>
+          </NuxtLink>
 
         </div>
       </div>
@@ -23,6 +23,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+  layout: 'portal'
+})
+
 import { computed } from 'vue';
 import { useProjectsStore } from '@/stores/projects';
 import NoProjectFound from '@/components/NoProjectFound.vue';
