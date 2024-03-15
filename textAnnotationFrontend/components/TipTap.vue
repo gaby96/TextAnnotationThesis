@@ -49,42 +49,42 @@ export default {
 //     });
   },
   methods: {
-    onFocus(event) {
-      event.target.style.caretColor = this.getRandomColor();
-    },
-    handleInput(event) {
-      this.socket.emit('text-change', { text: this.text, senderId: this.socket.id });
-      this.handleCursorMove();
-    },
-    handleCursorMove() {
-      this.localCursorColor = this.getRandomColor();
-      const position = this.getCurrentCursorPosition();
-      this.socket.emit('cursor-move', { id: this.socket.id, position, color: this.localCursorColor });
-    },
-    cursorStyle(cursor) {
-      return {
-        position: 'absolute',
-        left: `${cursor.position}px`,
-        color: cursor.color,
-        userSelect: 'none',
-        pointerEvents: 'none',
-      };
-    },
-    getCurrentCursorPosition() {
-      return this.$refs.textarea.selectionStart;
-    },
-    setCaretPosition(pos) {
-      this.$refs.textarea.setSelectionRange(pos, pos);
-    },
-    getRandomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      console.log(color)
-      return color;
-    }
+    // onFocus(event) {
+    //   event.target.style.caretColor = this.getRandomColor();
+    // },
+    // handleInput(event) {
+    //   this.socket.emit('text-change', { text: this.text, senderId: this.socket.id });
+    //   this.handleCursorMove();
+    // },
+    // handleCursorMove() {
+    //   this.localCursorColor = this.getRandomColor();
+    //   const position = this.getCurrentCursorPosition();
+    //   this.socket.emit('cursor-move', { id: this.socket.id, position, color: this.localCursorColor });
+    // },
+    // cursorStyle(cursor) {
+    //   return {
+    //     position: 'absolute',
+    //     left: `${cursor.position}px`,
+    //     color: cursor.color,
+    //     userSelect: 'none',
+    //     pointerEvents: 'none',
+    //   };
+    // },
+    // getCurrentCursorPosition() {
+    //   return this.$refs.textarea.selectionStart;
+    // },
+    // setCaretPosition(pos) {
+    //   this.$refs.textarea.setSelectionRange(pos, pos);
+    // },
+    // getRandomColor() {
+    //   const letters = '0123456789ABCDEF';
+    //   let color = '#';
+    //   for (let i = 0; i < 6; i++) {
+    //     color += letters[Math.floor(Math.random() * 16)];
+    //   }
+    //   console.log(color)
+    //   return color;
+    // }
   },
 };
 </script>

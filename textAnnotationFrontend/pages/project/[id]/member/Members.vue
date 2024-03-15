@@ -1,18 +1,21 @@
 <template>
-    <div class="flex flex-col justify-end items-start mr-12 items-end">
+  <div>
+    <Portal />
+  </div>
+  <div class="flex flex-col justify-end items-start mr-12 items-end">
 
-      <div class="relative inline-block text-left">
-    <div class="group mr-12">
-      <RouterLink :to="`/project/${projectId}/member/createmember`" class="text-blue-500 hover:text-blue-700">
-        <button type="button"
+    <div class="relative inline-block text-left">
+      <div class="group mr-12">
+        <RouterLink :to="`/project/${projectId}/member/createmember`">
+          <button type="button"
             class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600">
-              Add Member
-              <!-- Dropdown arrow -->
-        </button>
-      </RouterLink>
+            Add Member
+            <!-- Dropdown arrow -->
+          </button>
+        </RouterLink>
 
+      </div>
     </div>
-</div>
 
     <div class="w-full sm:w-3/5 lg:w-4/5 overflow-hidden rounded-lg border border-gray-200 shadow-md m-7 mb-4">
       <div class="overflow-x-auto">
@@ -21,35 +24,38 @@
             <tr>
               <th scope="col" class="px-6 py-4 font-medium text-gray-900">Email</th>
               <th scope="col" class="px-6 py-4 font-medium text-gray-900">Role</th>
+              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr class="hover:bg-gray-50" v-for="label in labels" :key="label.id">
+            <tr class="hover:bg-gray-50" v-for="member in members" :key="member.id">
               <td class="px-6 py-4 font-medium text-gray-900">
                 <!-- Update this line -->
-                {{ label.text }}
+                {{ member.email }}
               </td>
-              <td class="px-6 py-4"><div class="preview-chip" :style="{ backgroundColor: label.background_color, color: label.text_color }">
-                {{ label.text }}
-                <span v-if="label.suffix_key" class="preview-avatar">{{ label.suffix_key }}</span>
-              </div>
+              <td class="px-6 py-4 font-medium text-gray-900">
+                <!-- Update this line -->
+                {{ member.rolename }}
               </td>
+
               <td class="px-7 py-4 text-center flex justify-left items-center gap-2">
-                  <!-- Edit Icon -->
-                  <RouterLink :to="`/project/${projectId}/label/${label.id}/editlabel`">
+                <!-- Edit Icon -->
+                <!-- <RouterLink :to="`/project/${projectId}/label/${label.id}/editlabel`">
                   <a href="#" @click.prevent="editLabel(label.id)">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 hover:text-blue-700 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-4.732a2.25 2.25 0 113.182 3.182L6.75 20.25H3.75v-3l11.482-11.482z" />
                     </svg>
                   </a>
-                </RouterLink>
-                  <!-- Delete Icon -->
-                  <a href="#" @click.prevent="deleteLabel(label.id)">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6 text-red-500 hover:text-red-700 cursor-pointer">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                    </svg>
-                  </a>
-                </td>
+                </RouterLink> -->
+                <!-- Delete Icon -->
+                <a href="#" @click.prevent="deleteMember(member.id)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="h-6 w-6 text-red-500 hover:text-red-700 cursor-pointer">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </a>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -57,8 +63,8 @@
     </div>
   </div>
 </template>
+
 <style scoped>
-   
 .color-chip {
   height: 32px;
   width: 32px;
@@ -76,10 +82,13 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #fff; /* Avatar background color */
-  color: #000; /* Avatar text color */
+  background-color: #fff;
+  /* Avatar background color */
+  color: #000;
+  /* Avatar text color */
   font-weight: bold;
 }
+
 .preview-container {
   display: flex;
   flex-direction: column;
@@ -88,8 +97,10 @@
 
 .preview-title {
   font-weight: bold;
-  color: #000; /* Adjust the color as needed */
-  margin-bottom: 8px; /* Adjust spacing as needed */
+  color: #000;
+  /* Adjust the color as needed */
+  margin-bottom: 8px;
+  /* Adjust spacing as needed */
 }
 
 .preview-chip {
@@ -102,8 +113,10 @@
 }
 
 .preview-avatar {
-  background-color: white; /* Adjust background color as needed */
-  color: black; /* Adjust text color as needed */
+  background-color: white;
+  /* Adjust background color as needed */
+  color: black;
+  /* Adjust text color as needed */
   margin-left: 0.5rem;
   padding: 0.25rem 0.5rem;
   border-radius: 50%;
@@ -111,28 +124,33 @@
 }
 
 /* Update dropdown menu styles */
-.group-hover:visible, .absolute {
+.group-hover:visible,
+.absolute {
   /* Set the background color to green */
-  background-color: #4CAF50; /* Example green color */
-  
+  background-color: #4CAF50;
+  /* Example green color */
+
   /* Adjust width if necessary to fit content */
-  width: auto; /* Adjust based on your content's width */
-  
+  width: auto;
+  /* Adjust based on your content's width */
+
   /* Align the dropdown to the left of the parent container */
   left: 0;
-  
+
   /* Adjust the position to display just above the table */
   top: 100%;
 }
 
 /* Ensure text colors contrast well with the green background */
 .group-hover:visible a {
-  color: white; /* Ensure readability against the green background */
+  color: white;
+  /* Ensure readability against the green background */
 }
 
 /* Hover effect for dropdown items */
 .group-hover:visible a:hover {
-  background-color: #367c39; /* Darker green for hover effect */
+  background-color: #367c39;
+  /* Darker green for hover effect */
 }
 </style>
 
@@ -141,6 +159,7 @@
 import { useAuthStore } from '@/stores/auth';
 import { useLabelStore } from '@/stores/labels'; // Ensure this is correctly imported based on your project structure
 import { useRuntimeConfig } from '#imports'; // Nuxt 3 auto-imports
+import Portal from '@/pages/project/[id]/portal.vue';
 
 
 export default {
@@ -158,11 +177,11 @@ export default {
   methods: {
 
     async fetchMembers() {
-        const authStore = useAuthStore();
-        const token = authStore.accessToken;
-        const config = useRuntimeConfig();
+      const authStore = useAuthStore();
+      const token = authStore.accessToken;
+      const config = useRuntimeConfig();
 
-        if (!token) {
+      if (!token) {
         throw new Error('Authentication token not found');
       }
 
@@ -175,20 +194,21 @@ export default {
           }
         });
 
-            if (!response.ok) {
-            throw new Error(errorData.message || 'Failed to fetch members');
-            }
-            const data = await response.json();
-            this.members = data;        
+        if (!response.ok) {
+          throw new Error(errorData.message || 'Failed to fetch members');
+        }
+        const data = await response.json();
+        this.members = data;
+        console.log(this.members)
       }
 
-      catch(error){
+      catch (error) {
 
       }
     },
 
-    
-    async deleteLabel(id) {
+
+    async deleteMember(id) {
       const authStore = useAuthStore();
       const token = authStore.accessToken;
       const config = useRuntimeConfig();

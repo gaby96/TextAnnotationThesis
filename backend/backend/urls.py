@@ -25,5 +25,6 @@ urlpatterns = [
     path('roles/', include("roles.urls")),
     path('project/', include("projects.urls")),
     path("project/<int:project_id>/", include("label_types.urls")),
+    path("data_import/", include("data_import.urls")),
     
 ]
