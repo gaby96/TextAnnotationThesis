@@ -82,7 +82,7 @@ export default {
             icon: 'i-heroicons-tag',
             to: `/project/${projectId}/label/labelhome`,
           },
-          { label: 'Members', icon: 'i-heroicons-users', to: `/project/${projectId}/member/members` },
+          { label: 'Members', icon: 'i-heroicons-users', to: `/project/${projectId}/member/memberhome` },
           {
             label: 'Comments',
             icon: 'i-heroicons-chat-bubble-bottom-center-text',

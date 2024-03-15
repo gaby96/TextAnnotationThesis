@@ -17,7 +17,6 @@ SEQUENCE_LABELING_DIR = EXAMPLE_DIR / "sequence_labeling"
 RELATION_EXTRACTION_DIR = EXAMPLE_DIR / "relation_extraction"
 SEQ2SEQ_DIR = EXAMPLE_DIR / "sequence_to_sequence"
 INTENT_DETECTION_DIR = EXAMPLE_DIR / "intent_detection"
-IMAGE_CLASSIFICATION_DIR = EXAMPLE_DIR / "image_classification"
 SPEECH_TO_TEXT_DIR = EXAMPLE_DIR / "speech_to_text"
 
 # Define the task identifiers
@@ -433,28 +432,15 @@ Options.register(
 # Image tasks
 image_tasks = [
     ProjectType.IMAGE_CLASSIFICATION,
-    ProjectType.IMAGE_CAPTIONING,
     ProjectType.BOUNDING_BOX,
-    ProjectType.SEGMENTATION,
 ]
-for task_name in image_tasks:
-    Options.register(
-        Option(
-            display_name=ImageFile.name,
-            task_id=task_name,
-            file_format=ImageFile,
-            arg=ArgNone,
-            file=IMAGE_CLASSIFICATION_DIR / "image_files.txt",
-        )
-    )
-
-# Speech to Text
-Options.register(
-    Option(
-        display_name=AudioFile.name,
-        task_id=ProjectType.SPEECH2TEXT,
-        file_format=AudioFile,
-        arg=ArgNone,
-        file=SPEECH_TO_TEXT_DIR / "audio_files.txt",
-    )
-)
+# for task_name in image_tasks:
+#     Options.register(
+#         Option(
+#             display_name=ImageFile.name,
+#             task_id=task_name,
+#             file_format=ImageFile,
+#             arg=ArgNone,
+#             file=IMAGE_CLASSIFICATION_DIR / "image_files.txt",
+#         )
+#     )
