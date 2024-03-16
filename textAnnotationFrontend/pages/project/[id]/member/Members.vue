@@ -162,7 +162,7 @@ definePageMeta({
 import { useAuthStore } from '@/stores/auth';
 import { useLabelStore } from '@/stores/labels'; // Ensure this is correctly imported based on your project structure
 import { useRuntimeConfig } from '#imports'; // Nuxt 3 auto-imports
-import Portal from '@/pages/project/[id]/portal.vue';
+// import Portal from '@/pages/project/[id]/portal.vue';
 
 
 export default {
