@@ -31,7 +31,7 @@ import { computed } from 'vue';
 import { useProjectsStore } from '@/stores/projects';
 import NoProjectFound from '@/components/NoProjectFound.vue';
 import ListProjects from '@/components/ListProjects.vue';
-import Portal from '@/pages/project/[id]/portal.vue';
+// import Portal from '@/pages/project/[id]/portal.vue';
 const projectsStore = useProjectsStore();
 
 // Using a computed property to reactively check if projects array is empty

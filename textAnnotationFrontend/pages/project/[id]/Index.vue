@@ -19,4 +19,4 @@ export default {
   //   TheBottomBanner
   // }
 }
-</script>
+</script>./index.vue
