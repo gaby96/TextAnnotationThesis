@@ -10,9 +10,9 @@ export default defineNuxtConfig({
   ],
 
 
-  plugins: [
-    '~/plugins/socket.io.js',
-  ],
+  // plugins: [
+  //   '~/plugins/socket.io.js',
+  // ],
 
   // postcss: {
   //   plugins: {
@@ -21,13 +21,13 @@ export default defineNuxtConfig({
   //   },
   // },
 
-  io: {
-    // module options
-    sockets: [{
-      name: 'main',
-      url: 'http://localhost:3000'
-    }]
-  },
+  // io: {
+  //   // module options
+  //   sockets: [{
+  //     name: 'main',
+  //     url: 'http://localhost:3000'
+  //   }]
+  // },
 
   runtimeConfig: {
     public: {

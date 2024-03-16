@@ -21,23 +21,23 @@
             <tr>
               <th scope="col" class="px-6 py-4 font-medium text-gray-900">Email</th>
               <th scope="col" class="px-6 py-4 font-medium text-gray-900">Role</th>
+              <th scope="col" class="px-6 py-4 font-medium text-gray-900">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr class="hover:bg-gray-50" v-for="label in labels" :key="label.id">
+            <tr class="hover:bg-gray-50" v-for="member in members" :key="member.id">
               <td class="px-6 py-4 font-medium text-gray-900">
                 <!-- Update this line -->
-                {{ label.text }}
+                {{ member.email }}
               </td>
-              <td class="px-6 py-4">
-                <div class="preview-chip" :style="{ backgroundColor: label.background_color, color: label.text_color }">
-                  {{ label.text }}
-                  <span v-if="label.suffix_key" class="preview-avatar">{{ label.suffix_key }}</span>
-                </div>
+              <td class="px-6 py-4 font-medium text-gray-900">
+                <!-- Update this line -->
+                {{ member.rolename }}
               </td>
+
               <td class="px-7 py-4 text-center flex justify-left items-center gap-2">
                 <!-- Edit Icon -->
-                <RouterLink :to="`/project/${projectId}/label/${label.id}/editlabel`">
+                <!-- <RouterLink :to="`/project/${projectId}/label/${label.id}/editlabel`">
                   <a href="#" @click.prevent="editLabel(label.id)">
                     <svg xmlns="http://www.w3.org/2000/svg"
                       class="h-6 w-6 text-blue-500 hover:text-blue-700 cursor-pointer" fill="none" viewBox="0 0 24 24"
@@ -46,9 +46,9 @@
                         d="M15.232 5.232l3.536 3.536m-2.036-4.732a2.25 2.25 0 113.182 3.182L6.75 20.25H3.75v-3l11.482-11.482z" />
                     </svg>
                   </a>
-                </RouterLink>
+                </RouterLink> -->
                 <!-- Delete Icon -->
-                <a href="#" @click.prevent="deleteLabel(label.id)">
+                <a href="#" @click.prevent="deleteMember(member.id)">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="h-6 w-6 text-red-500 hover:text-red-700 cursor-pointer">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -162,6 +162,7 @@ definePageMeta({
 import { useAuthStore } from '@/stores/auth';
 import { useLabelStore } from '@/stores/labels'; // Ensure this is correctly imported based on your project structure
 import { useRuntimeConfig } from '#imports'; // Nuxt 3 auto-imports
+import Portal from '@/pages/project/[id]/portal.vue';
 
 
 export default {
@@ -201,6 +202,7 @@ export default {
         }
         const data = await response.json();
         this.members = data;
+        console.log(this.members)
       }
 
       catch (error) {
@@ -209,7 +211,7 @@ export default {
     },
 
 
-    async deleteLabel(id) {
+    async deleteMember(id) {
       const authStore = useAuthStore();
       const token = authStore.accessToken;
       const config = useRuntimeConfig();
