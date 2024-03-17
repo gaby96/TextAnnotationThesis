@@ -10,9 +10,10 @@ export default defineNuxtConfig({
   ],
 
 
-  // plugins: [
-  //   '~/plugins/socket.io.js',
-  // ],
+  plugins: [
+    // '~/plugins/socket.io.js',
+    '~/plugins/easy-data-table.js'
+  ],
 
   // postcss: {
   //   plugins: {
