@@ -26,6 +26,7 @@
     "pinia": "^2.1.7",
     "socket.io-client": "^4.7.4",
     "vue-filepond": "^7.0.4",
+    "vue3-easy-data-table": "^1.5.47",
     "y-prosemirror": "^1.2.2"
   }
 }
