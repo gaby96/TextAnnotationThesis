@@ -154,7 +154,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'text_annotation',
         'USER': 'postgres',
-        'PASSWORD': 'biologyc4',
+        'PASSWORD': 'kristian',
         'HOST': '127.0.0.1',  # Or 'localhost'
         'PORT': '5432',
     }

@@ -4,7 +4,8 @@
             <div>
                 <a class="mx-2 my-1 flex items-center text-neutral-900 hover:text-neutral-900 focus:text-neutral-900 lg:mb-0 lg:mt-0"
                     href="#">
-                    <img class="ml-3" src="~/assets/searchicon.png" style="height: 70px" alt="Search Logo" loading="lazy" />
+                    <img class="ml-3" src="~/assets/searchicon.png" style="height: 70px" alt="Search Logo"
+                        loading="lazy" />
                 </a>
             </div>
             <h1 class="mt-4 text-black text-2xl font-semibold text-center">No project found</h1>
@@ -32,4 +33,4 @@
 
 </script>
 
-<style  scoped></style>
+<style scoped></style>

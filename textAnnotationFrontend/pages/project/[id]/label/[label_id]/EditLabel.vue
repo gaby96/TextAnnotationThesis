@@ -120,6 +120,9 @@
 </style>
 
 <script>
+definePageMeta({
+  layout: 'portal'
+})
 import { useAuthStore } from '@/stores/auth';
 export default {
   name: 'EditLabel',
@@ -267,7 +270,6 @@ export default {
         // Handle error accordingly
       }
     }
-
 
   },
 

@@ -1,12 +1,9 @@
 <template>
-  <div>
-    <Portal />
-  </div>
-  <div class="flex flex-col justify-end items-start mr-12 items-end">
+  <div class="flex flex-col justify-end items-start  items-end">
 
     <div class="relative inline-block text-left">
-      <div class="group mr-12">
-        <RouterLink :to="`/project/${projectId}/member/createmember`">
+      <div class="group ">
+        <RouterLink :to="`/project/${projectId}/member/createmember`" class="text-blue-500 hover:text-blue-700">
           <button type="button"
             class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600">
             Add Member
@@ -17,7 +14,7 @@
       </div>
     </div>
 
-    <div class="w-full sm:w-3/5 lg:w-4/5 overflow-hidden rounded-lg border border-gray-200 shadow-md m-7 mb-4">
+    <div class="w-full overflow-hidden rounded-lg border border-gray-200 shadow-md my-7 mb-4">
       <div class="overflow-x-auto">
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 ">
           <thead class="bg-gray-50">
@@ -42,8 +39,11 @@
                 <!-- Edit Icon -->
                 <!-- <RouterLink :to="`/project/${projectId}/label/${label.id}/editlabel`">
                   <a href="#" @click.prevent="editLabel(label.id)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 hover:text-blue-700 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-4.732a2.25 2.25 0 113.182 3.182L6.75 20.25H3.75v-3l11.482-11.482z" />
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                      class="h-6 w-6 text-blue-500 hover:text-blue-700 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.232 5.232l3.536 3.536m-2.036-4.732a2.25 2.25 0 113.182 3.182L6.75 20.25H3.75v-3l11.482-11.482z" />
                     </svg>
                   </a>
                 </RouterLink> -->
@@ -156,10 +156,13 @@
 
 
 <script>
+definePageMeta({
+  layout: 'portal'
+})
 import { useAuthStore } from '@/stores/auth';
 import { useLabelStore } from '@/stores/labels'; // Ensure this is correctly imported based on your project structure
 import { useRuntimeConfig } from '#imports'; // Nuxt 3 auto-imports
-import Portal from '@/pages/project/[id]/portal.vue';
+// import Portal from '@/pages/project/[id]/portal.vue';
 
 
 export default {

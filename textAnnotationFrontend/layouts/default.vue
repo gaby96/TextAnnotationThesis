@@ -1,11 +1,11 @@
 <template>
-
-    <the-header v-if="!authStore.isLoggedIn" />
+    <!-- v-if="!authStore.isLoggedIn"  -->
+    <the-header />
     <slot />
     <!-- <the-footer /> -->
- 
+
 </template>
-  
+
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import TheHeader from '@/components/TheHeader';
