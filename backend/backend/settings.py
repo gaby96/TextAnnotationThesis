@@ -32,7 +32,7 @@ env.read_env(path.join(BASE_DIR, ".env"), recurse=False)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '127.0.0.1:6379/0']
+ALLOWED_HOSTS = ['*', '127.0.0.1:6379/0', '127.0.0.1:8088']
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -154,7 +154,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'text_annotation',
         'USER': 'postgres',
-        'PASSWORD': 'kristian',
+        'PASSWORD': 'biologyc4',
         'HOST': '127.0.0.1',  # Or 'localhost'
         'PORT': '5432',
     }
@@ -214,18 +214,37 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8088",
+    "http://127.0.0.1:8088",
+]
+
+
+# Specify which methods are allowed
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_HEADERS = True
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    'contenttype',
     'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
     'origin',
+    'user-agent',
     'x-csrftoken',
     'x-requested-with',
-    'authorization',
-    'content-type'
+    'upload-length', 
 ]
 
 SIMPLE_JWT = {
