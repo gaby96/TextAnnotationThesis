@@ -12,7 +12,7 @@ import Text from '@tiptap/extension-text'
 import Collaboration from '@tiptap/extension-collaboration'
 import * as Y from 'yjs';
 
-import { TiptapCollabProvider } from '@hocuspocus/provider';
+//import { TiptapCollabProvider } from '@hocuspocus/provider';
 
 export default {
     components: {
@@ -26,14 +26,14 @@ export default {
         };
     },
     mounted() {
-        console.log(this.ydoc)
+        //console.log(this.ydoc)
 
-         this.provider = new TiptapCollabProvider({
-            name: "document.name", // Unique document identifier for syncing. This is your document name.
-            appId: 'j9ynyzk1', // Your Cloud Dashboard AppID or `baseURL` for on-premises
-            token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTA5NDkwODQsIm5iZiI6MTcxMDk0OTA4NCwiZXhwIjoxNzExMDM1NDg0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiJqOXlueXprMSJ9.rsL5iEukcd0JRcZHwOtmAV7Dv87H7UmIEabY6xfoUPg', // Your JWT token
-            document: this.ydoc,
-        })
+        //  this.provider = new TiptapCollabProvider({
+        //     name: "document.name", // Unique document identifier for syncing. This is your document name.
+        //     appId: 'j9ynyzk1', // Your Cloud Dashboard AppID or `baseURL` for on-premises
+        //     token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTA5NDkwODQsIm5iZiI6MTcxMDk0OTA4NCwiZXhwIjoxNzExMDM1NDg0LCJpc3MiOiJodHRwczovL2Nsb3VkLnRpcHRhcC5kZXYiLCJhdWQiOiJqOXlueXprMSJ9.rsL5iEukcd0JRcZHwOtmAV7Dv87H7UmIEabY6xfoUPg', // Your JWT token
+        //     document: this.ydoc,
+        // })
         this.editor = new Editor({
             extensions: [
                 Document,

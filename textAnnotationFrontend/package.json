@@ -20,6 +20,14 @@
   "dependencies": {
     "@nuxt/ui": "^2.13.0",
     "@pinia/nuxt": "^0.5.1",
+    "@tiptap/extension-collaboration": "^2.2.4",
+    "@tiptap/extension-document": "^2.2.4",
+    "@tiptap/extension-paragraph": "^2.2.4",
+    "@tiptap/extension-text": "^2.2.4",
+    "@tiptap/pm": "^2.2.4",
+    "@tiptap/starter-kit": "^2.2.4",
+    "@tiptap/vue-3": "^2.2.4",
+    "crypto-browserify": "^3.12.0",
     "filepond": "^4.30.6",
     "filepond-plugin-file-validate-type": "^1.2.9",
     "nuxt-socket-io": "^3.0.13",
@@ -27,6 +35,6 @@
     "socket.io-client": "^4.7.4",
     "vue-filepond": "^7.0.4",
     "vue3-easy-data-table": "^1.5.47",
-    "y-prosemirror": "^1.2.2"
+    "yjs": "^13.6.14"
   }
 }
