@@ -73,7 +73,7 @@ class LogoutView(APIView):
             refresh_token = request.data.get('refresh_token')
             token = RefreshToken(refresh_token)
             token.blacklist()
-            print(token.blacklist)  # This blacklists the token
+            #print(token.blacklist)  # This blacklists the token
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             # Handle the error

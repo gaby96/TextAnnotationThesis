@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 
 
   plugins: [
-    // '~/plugins/socket.io.js',
+    '~/plugins/socket.io.js',
     '~/plugins/easy-data-table.js'
   ],
 
@@ -22,13 +22,13 @@ export default defineNuxtConfig({
   //   },
   // },
 
-  // io: {
-  //   // module options
-  //   sockets: [{
-  //     name: 'main',
-  //     url: 'http://localhost:3000'
-  //   }]
-  // },
+  io: {
+    // module options
+    sockets: [{
+      name: 'main',
+      url: 'http://localhost:3000'
+    }]
+  },
 
   runtimeConfig: {
     public: {
