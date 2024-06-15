@@ -1,12 +1,41 @@
 <template>
-  <div class="text-container" @mouseup="checkSelection" ref="textContainer">
-    <span v-html="renderedText" class="text-lg"></span>
+  <div>
+    <div class="text-container" ref="textContainer">
+      <span
+        v-for="(word, index) in words"
+        :key="index"
+        class="word text-lg space-x-10"
+        style="padding: 3px; line-height: 35px"
+        @dblclick="handleDoubleClick(index)"
+        :class="[
+          'word',
+          { highlighted: index >= startWordIndex && index <= endWordIndex },
+          word.annotated ? word.label.colorClass : '',
+        ]"
+      >
+        {{ word.text }}
+        <span
+          v-if="word.annotated"
+          class="annotation-label text-xs rounded-lg"
+          :style="{ backgroundColor: word.label.color }"
+        >
+          {{ word.label.text }}
+          <button class="remove-btn" @click="removeAnnotation(index)">X</button>
+        </span>
+      </span>
+    </div>
+
+    <DropdownMenu
+      v-if="showDropdown"
+      :labels="labels"
+      :position="dropdownPosition"
+      @label-selected="applyLabel"
+    />
   </div>
-  <DropdownMenu v-if="showDropdown" :labels="labels" :position="dropdownPosition" @label-selected="applyLabel" />
 </template>
 
 <script>
-import DropdownMenu from '@/components/DropdownMenu.vue';
+import DropdownMenu from "@/components/DropdownMenu.vue";
 
 export default {
   components: {
@@ -14,146 +43,124 @@ export default {
   },
   data() {
     return {
+      labeledWordsArray: [],
       showDropdown: false,
       dropdownPosition: { x: 0, y: 0 },
       labels: [
-        { id: 1, text: 'Label 1', color: '#33FFF9' },
-        { id: 2, text: 'Label 2', color: '#336EFF' },
+        { id: 1, text: "Label 1", color: "#33FFF9", colorClass: "bg-cyan-100" },
+        {
+          id: 2,
+          text: "Label 2",
+          color: "rgb(173, 186, 255)",
+          colorClass: "bg-indigo-100",
+        },
       ],
       annotations: [],
-      fullText: "The Diploma thesis proposal is the basis for the Assignment of the diploma thesis and at the same time, it is used for the progress supervision of the diploma thesis elaboration. The Diploma thesis proposal is drawn up by a student when the diploma thesis topic choice is made. The student presents it to the potential thesis supervisor. During the subsequent consultations with the potential thesis supervisor, the diploma thesis proposal is further specified.",
-      tokens: [],
-      selectedRange: null,
+      fullText:
+        "The Diploma thesis proposal is the basis for the Assignment of the diploma thesis and at the same time, it is used for the progress supervision of the diploma thesis elaboration. The Diploma thesis proposal is drawn up by a student when the diploma thesis topic choice is made. The student presents it to the potential thesis supervisor. During the subsequent consultations with the potential thesis supervisor, the diploma thesis proposal is further specified.",
+      words: [],
+      startWordIndex: -1,
+      endWordIndex: -1,
     };
   },
   computed: {
     renderedText() {
-      this.tokenizeText();
-      const textParts = [];
-      let lastIndex = 0;
-
-      this.annotations
-        .sort((a, b) => a.start - b.start) // Ensure annotations are processed in order
-        .forEach((anno) => {
-          const { start, end, label } = anno;
-          const backgroundColor = `${label.color}44`;
-          const textColor = this.getContrastYIQ(label.color);
-          const annotatedText = `<span class="annotated-word" style="background-color: ${backgroundColor}; color: ${textColor};">${this.escapeHtml(this.fullText.slice(start, end))}<span class="annotation-label" style="color: ${textColor}; background-color: ${backgroundColor}; margin-left: 4px;">${label.text}</span></span>`;
-
-          // Push the text before the annotation
-          textParts.push(this.escapeHtml(this.fullText.slice(lastIndex, start)));
-          // Push the annotated text
-          textParts.push(annotatedText);
-          // Update the last index
-          lastIndex = end;
-        });
-
-      // Push any remaining text after the last annotation
-      textParts.push(this.escapeHtml(this.fullText.slice(lastIndex)));
-
-      return textParts.join('');
+      return this.words.map((word) => word.text).join(" ");
     },
   },
   methods: {
     tokenizeText() {
-      this.tokens = [];
+      const regex = /(\s+|[.,!?;:\(\)\[\]{}"'])/;
       let start = 0;
-      const regex = /(\s+|[.,!?;:\(\)\[\]{}"'])/; // Split on whitespace or punctuation
       this.fullText.split(regex).forEach((segment) => {
         if (segment.length > 0) {
-          this.tokens.push({ word: segment, start, end: start + segment.length });
+          const end = start + segment.length;
+          this.words.push({ text: segment, start, end, annotated: false });
         }
         start += segment.length;
       });
     },
-    checkSelection() {
-      const selection = window.getSelection();
-      if (selection.rangeCount > 0 && !selection.isCollapsed) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-
-        const startOffset = this.getOffsetInText(range.startContainer, range.startOffset);
-        const endOffset = this.getOffsetInText(range.endContainer, range.endOffset);
-
+    handleDoubleClick(index) {
+      // Handle double click event on a specific word (index)
+      this.startWordIndex = index;
+      this.endWordIndex = index;
+      this.calculateDropdownPosition(index);
+      this.showDropdown = true; // Show dropdown menu
+    },
+    calculateDropdownPosition(index) {
+      // Calculate position based on the index of the word
+      const spanElement = this.$refs.textContainer.children[index];
+      if (spanElement) {
+        const rect = spanElement.getBoundingClientRect();
         this.dropdownPosition.x = rect.left + window.scrollX;
         this.dropdownPosition.y = rect.bottom + window.scrollY;
-        this.selectedRange = { start: this.findTokenStart(startOffset), end: this.findTokenEnd(endOffset) };
-        this.showDropdown = true;
-      } else {
-        this.showDropdown = false;
       }
-    },
-    findTokenStart(offset) {
-      for (const token of this.tokens) {
-        if (token.start <= offset && token.end >= offset) {
-          return token.start;
-        }
-      }
-      return offset;
-    },
-    findTokenEnd(offset) {
-      for (const token of this.tokens) {
-        if (token.start <= offset && token.end >= offset) {
-          return token.end;
-        }
-      }
-      return offset;
-    },
-    getOffsetInText(node, offset) {
-      let totalOffset = 0;
-      const walker = document.createTreeWalker(this.$refs.textContainer, NodeFilter.SHOW_TEXT, null, false);
-      let currentNode;
-
-      while ((currentNode = walker.nextNode())) {
-        if (currentNode === node) {
-          totalOffset += offset;
-          break;
-        }
-        totalOffset += currentNode.nodeValue.length;
-      }
-
-      return totalOffset;
-    },
-    getContrastYIQ(hexcolor) {
-      hexcolor = hexcolor.replace("#", "");
-      const r = parseInt(hexcolor.substr(0, 2), 16);
-      const g = parseInt(hexcolor.substr(2, 2), 16);
-      const b = parseInt(hexcolor.substr(4, 2), 16);
-      const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-      return (yiq >= 128) ? 'black' : 'white';
     },
     applyLabel(label) {
-      if (this.selectedRange && this.selectedRange.start !== this.selectedRange.end) {
-        const { start, end } = this.selectedRange;
+      if (this.startWordIndex !== -1 && this.endWordIndex !== -1) {
+        // Apply label to the words from startWordIndex to endWordIndex
+        for (let i = this.startWordIndex; i <= this.endWordIndex; i++) {
+          if (!this.words[i].annotated) {
+            this.words[i].annotated = true;
+            this.words[i].label = label;
 
-        // Remove any existing annotations that overlap with the new range
-        this.annotations = this.annotations.filter(anno => !(start < anno.end && end > anno.start));
+            // Check if the word is already in labeledWordsArray
+            const existingIndex = this.labeledWordsArray.findIndex(
+              (item) => item.value === this.words[i].text
+            );
 
-        // Add the new annotation
-        const text = this.fullText.slice(start, end);
-        this.annotations.push({ text, label, start, end });
+            if (existingIndex !== -1) {
+              // Update existing entry with the new label
+              this.labeledWordsArray[existingIndex].key = label.text;
+            } else {
+              // Add new entry to labeledWordsArray
+              this.labeledWordsArray.push({
+                key: label.text,
+                value: this.words[i].text,
+              });
+            }
+          }
+        }
 
         // Reset selection and hide dropdown
+        this.startWordIndex = -1;
+        this.endWordIndex = -1;
         this.showDropdown = false;
-        this.selectedRange = null;
+
+        // Log the updated array of labeled words
+        console.log(
+          this.labeledWordsArray.map((item) => ({
+            key: item.key,
+            value: item.value,
+          }))
+        );
       }
     },
-    escapeHtml(unsafe) {
-      return unsafe.replace(/[&<"']/g, (m) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      }[m]));
-    }
+    removeAnnotation(index) {
+      // Remove annotation from the word at index
+      this.words[index].annotated = false;
+      this.words[index].label = null;
+    },
+  },
+  mounted() {
+    this.tokenizeText();
   },
 };
 </script>
 
-<style>
-.text-container {
-  position: relative;
+<style scoped>
+.word {
+  margin-right: 0px;
+  cursor: pointer;
+}
+
+.word.highlighted {
+}
+
+.annotation-label {
+  font-size: 11px;
+  padding: 3px;
+  top: 20px;
 }
 
 .annotated-word {
@@ -164,12 +171,21 @@ export default {
   display: inline-block;
 }
 
-.annotation-label {
-  font-size: 10px;
-  text-align: center;
-  margin-left: 4px;
-  border-radius: 4px;
-  padding: 0 2px;
-  display: inline-block;
+.remove-btn {
+  font-weight: bold;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.bg-blue-200 {
+  padding: 3px;
+  background-color: #33fff9;
+  border-radius: 5px;
+}
+
+.bg-indigo-200 {
+  padding: 3px;
+  background-color: #336eff;
+  border-radius: 5px;
 }
 </style>
