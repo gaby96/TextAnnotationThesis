@@ -82,7 +82,7 @@ export default {
                 });
                 const data = await response.json()
                 this.items = data
-                console.log(this.items)
+
 
             } catch (error) {
                 console.error('Error fetching label data:', error);
@@ -90,7 +90,7 @@ export default {
             }
         },
 
-        async fetchProject(){
+        async fetchProject() {
             const authStore = useAuthStore()
             const token = authStore.accessToken
             try {
@@ -105,7 +105,7 @@ export default {
                 const data = await response.json()
                 this.project = data
                 this.projectType = data.project_type
-                console.log(this.projectType)
+                //console.log(this.projectType)
 
             } catch (error) {
                 console.error('Error fetching project data:', error);
@@ -113,14 +113,15 @@ export default {
             }
         },
 
+
         async annotateText(example_id) {
 
-            if(this.projectType === 'Seq2seq'){
-                navigateTo(`/project/${this.projectId}/${example_id}/sequencelabeling`); 
+            if (this.projectType === 'Seq2seq') {
+                navigateTo(`/project/${this.projectId}/${example_id}/sequencelabeling`);
             }
-            
-            else if(this.projectType === 'DocumentClassification'){
-                navigateTo(`/project/${this.projectId}/${example_id}/classification`); 
+
+            else if (this.projectType === 'DocumentClassification') {
+                navigateTo(`/project/${this.projectId}/${example_id}/classification`);
             }
         }
 
@@ -139,3 +140,45 @@ export default {
 }
 
 </script>
+
+<style scoped>
+.word {
+  margin-right: 0px;
+  cursor: pointer;
+}
+
+/* .word.highlighted {
+} */
+
+.annotation-label {
+  font-size: 11px;
+  padding: 3px;
+  top: 20px;
+}
+
+.annotated-word {
+  padding: 0 4px;
+  border-radius: 4px;
+  margin: 0 2px;
+  position: relative;
+  display: inline-block;
+}
+
+.remove-btn {
+  font-weight: bold;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.bg-blue-200 {
+  padding: 3px;
+  background-color: #33fff9;
+  border-radius: 5px;
+}
+
+.bg-indigo-200 {
+  padding: 3px;
+  background-color: #336eff;
+  border-radius: 5px;
+}
+</style>

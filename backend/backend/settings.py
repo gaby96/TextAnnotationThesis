@@ -34,6 +34,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', '127.0.0.1:6379/0', '127.0.0.1:8088']
 
+if DEBUG:
+    CORS_ORIGIN_ALLOW_ALL = True
+    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8088", "http://0.0.0.0:8088", "http://localhost:8088"]
+    CSRF_TRUSTED_ORIGINS += env.list("CSRF_TRUSTED_ORIGINS", [])
+
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
@@ -165,7 +170,7 @@ DATABASES = {
 # Celery settings
 DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
