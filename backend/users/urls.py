@@ -18,7 +18,7 @@ urlpatterns = [
     path('login-refresh', TokenRefreshView.as_view()),
     path('signup', RegisterUser.as_view()),
     path('', include(router.urls)),
-    path('current', CurrentUserView.as_view(), name='current-user'),
+    path('current', CurrentUserView.as_view()),
     path('logout', LogoutView.as_view(), name='logout'),
 
     # ========================#

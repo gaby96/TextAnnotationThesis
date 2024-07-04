@@ -20,9 +20,9 @@
         </div>
       </nav>
       <div class="side flex flex-col justify-between h-full fixed py-5 px-2 border-r">
-        <div class="space-y-4">
+        <div class="space-y-8">
   
-          <UVerticalNavigation :links="links" class="space-y-2" />
+          <UVerticalNavigation :links="links" class="space-y-6" />
         </div>
   
         <div class="mt-8">

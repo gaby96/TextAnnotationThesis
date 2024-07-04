@@ -12,7 +12,7 @@ export const useLabelStore = defineStore('labels', () => {
       
       const authStore = useAuthStore()
       const token = authStore.accessToken
-      const response = await fetch(`http://127.0.0.1:8000/project/${projectId}/category-types`, {
+      const response = await fetch(`http://127.0.0.1:8000/project/${projectId}/span-types`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}` 

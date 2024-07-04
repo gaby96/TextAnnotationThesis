@@ -7,6 +7,7 @@ export const useAuthStore = defineStore(
   () => {
     const accessToken = ref("");
     const refreshToken = ref("");
+    const user = ref(null);
     const isLoading = ref(false);
     const isLoggedIn = ref(false);
 
@@ -51,6 +52,21 @@ export const useAuthStore = defineStore(
           this.refreshToken = data.refresh;
           this.isLoggedIn = true;
           this.isLoading = false;
+          const userResponse = await fetch(`http://localhost:8000/auth/current`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${this.accessToken}`,
+            },
+          });
+          const userData = await userResponse.json();
+          if (userResponse.ok) {
+            this.user = userData;
+          } else {
+            throw new Error(userData.detail || "Failed to fetch user data");
+          }
+
+          isLoading.value = false;
           return true;
         } else {
           throw new Error(data.detail || "Login failed");
@@ -69,6 +85,7 @@ export const useAuthStore = defineStore(
     }
     return {
       accessToken,
+      user,
       refreshToken,
       isLoading,
       isLoggedIn,

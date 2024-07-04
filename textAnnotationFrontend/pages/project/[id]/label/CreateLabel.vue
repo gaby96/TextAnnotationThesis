@@ -156,7 +156,7 @@ export default {
     },
 
     projectId() {
-      console.log(this.$route.params.id)
+      //console.log(this.$route.params.id)
       return this.$route.params.id
     },
 
@@ -229,7 +229,7 @@ export default {
 
       try {
         const config = useRuntimeConfig()
-        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types`, {
+        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -201,7 +201,7 @@ export default {
       }
 
       try {
-        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types/${id}`, {
+        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types/${id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

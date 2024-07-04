@@ -73,7 +73,7 @@ export default {
             const token = authStore.accessToken
             try {
                 const config = useRuntimeConfig()
-                const response = await fetch(`${config.public.baseURL}/dataset/${this.projectId}/examples`, {
+                const response = await fetch(`${config.public.baseURL}/project/dataset/${this.projectId}/examples`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
