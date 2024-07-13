@@ -4,7 +4,7 @@ import json
 from typing import List
 
 # Initialize OpenAI API key
-openai_api_key = "sk-proj-JA1hLzbB93r3Wgdl8eqTT3BlbkFJld74lnw0QnWrkcStNLNB"
+openai_api_key = ""
 llm = OpenAI(api_key=openai_api_key)
 
 def perform_ner(text):
