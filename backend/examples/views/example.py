@@ -8,12 +8,12 @@ from examples.filters import ExampleFilter
 from examples.models import Example
 from examples.serializers import ExampleSerializer
 from projects.models import Member, Project
-from projects.permissions import IsProjectAdmin, IsProjectStaffAndReadOnly
+from projects.permissions import IsProjectAdmin, IsProjectStaffAndReadOnly, IsProjectMember
 
 
 class ExampleList(generics.ListCreateAPIView):
     serializer_class = ExampleSerializer
-    permission_classes = [IsAuthenticated & (IsProjectAdmin | IsProjectStaffAndReadOnly)]
+    permission_classes = [IsAuthenticated & IsProjectMember]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     ordering_fields = ("created_at", "updated_at", "score")
     search_fields = ("text", "filename")
@@ -26,7 +26,7 @@ class ExampleList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         member = get_object_or_404(Member, project=self.project, user=self.request.user)
-        if member.is_admin():
+        if member:
             return self.model.objects.filter(project=self.project)
 
         queryset = self.model.objects.filter(project=self.project, assignments__assignee=self.request.user)
@@ -51,4 +51,4 @@ class ExampleDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Example.objects.all()
     serializer_class = ExampleSerializer
     lookup_url_kwarg = "example_id"
-    permission_classes = [IsAuthenticated & (IsProjectAdmin | IsProjectStaffAndReadOnly)]
+    permission_classes = [IsAuthenticated &  IsProjectMember]

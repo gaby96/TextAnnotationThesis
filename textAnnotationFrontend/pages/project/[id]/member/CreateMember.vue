@@ -32,7 +32,7 @@
             </div>
             <div>
               <p class="text-gray-500">
-                Select Project Type
+                Select Role Type
               </p>
               <div class='relative'>
                 <select
@@ -96,7 +96,7 @@ export default {
       const apiUrl = this.$config.public.baseURL;
       const authStore = useAuthStore();
       const token = authStore.accessToken;
-      console.log(token)
+      //console.log(token)
       try {
         const userResponse = await fetch(`${apiUrl}/auth/signup`, {
           method: 'POST',

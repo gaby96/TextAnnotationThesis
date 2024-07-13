@@ -49,7 +49,9 @@
 </template>
 
 <script>
-import { nextTick } from 'vue';
+definePageMeta({
+  layout: 'portal'
+})
 import { useAuthStore } from '@/stores/auth';
 // Import FilePond
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
@@ -83,7 +85,7 @@ export default {
         async importDataset() {
             this.isImporting = true;
             const item = this.fileFormats.find((item) => item.display_name === this.selectedFormat)
-            console.log(item)
+            //console.log(item)
             const config = useRuntimeConfig()
             const authStore = useAuthStore();
             const token = authStore.accessToken

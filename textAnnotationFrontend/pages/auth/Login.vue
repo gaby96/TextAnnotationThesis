@@ -35,7 +35,7 @@
                     <button type="submit" 
                             style="background-color: #047857; color: white;" 
                             class="w-full text-white hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:hover:bg-green-700 dark:focus:ring-green-800">
-                            {{ auth.isLoading ? "Login...." : "Login" }}
+                            {{ authStore.isLoading ? "Login...." : "Login" }}
                     </button>
 
                     <p class="text-sm font-light text-gray-500 dark:text-gray-400">

@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 from os import path
+import os
 from pathlib import Path
 from corsheaders.defaults import default_headers
 from datetime import timedelta
 from environs import Env, EnvError
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +36,12 @@ env.read_env(path.join(BASE_DIR, ".env"), recurse=False)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', '127.0.0.1:6379/0']
+ALLOWED_HOSTS = ['*', '127.0.0.1:6379/0', '127.0.0.1:8088']
+
+if DEBUG:
+    CORS_ORIGIN_ALLOW_ALL = True
+    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8088", "http://0.0.0.0:8088", "http://localhost:8088"]
+    CSRF_TRUSTED_ORIGINS += env.list("CSRF_TRUSTED_ORIGINS", [])
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -42,6 +51,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+
+#OPEN API KEY
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Application definition
 
@@ -77,7 +89,8 @@ INSTALLED_APPS = [
     'data_import',
     'examples',
     'label_types',
-    'labels'
+    'labels',
+    'llmapp'
 ]
 
 MIDDLEWARE = [
@@ -165,7 +178,7 @@ DATABASES = {
 # Celery settings
 DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -214,18 +227,37 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8088",
+    "http://127.0.0.1:8088",
+]
+
+
+# Specify which methods are allowed
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_HEADERS = True
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    'contenttype',
     'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
     'origin',
+    'user-agent',
     'x-csrftoken',
     'x-requested-with',
-    'authorization',
-    'content-type'
+    'upload-length', 
 ]
 
 SIMPLE_JWT = {

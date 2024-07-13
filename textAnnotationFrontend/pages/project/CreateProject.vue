@@ -221,7 +221,7 @@ export default {
 
       try {
         const config = useRuntimeConfig()
-        const response = await fetch(`${config.public.baseURL}/project/projects`, {
+        const response = await fetch(`http://127.0.0.1:8000/project/projects`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

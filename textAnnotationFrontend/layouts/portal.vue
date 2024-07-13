@@ -20,9 +20,9 @@
         </div>
       </nav>
       <div class="side flex flex-col justify-between h-full fixed py-5 px-2 border-r">
-        <div class="space-y-4">
+        <div class="space-y-8">
   
-          <UVerticalNavigation :links="links" class="space-y-2" />
+          <UVerticalNavigation :links="links" class="space-y-6" />
         </div>
   
         <div class="mt-8">
@@ -37,52 +37,34 @@
   </template>
   
   <script>
-  import { watch } from 'vue';
+  import { ref, watch } from 'vue';
   import { useRoute } from '#imports';
   
   export default {
-    data() {
-      return {
-        links: [],
-        otherLinks: [
-          {
-            label: 'Settings',
-            icon: 'i-heroicons-chart-bar',
-            to: '/portal/settings',
-          },
-          {
-            label: 'Logout',
-            icon: 'i-heroicons-arrow-right-on-rectangle-solid',
-            to: '/portal/logout',
-          },
-        ],
-      };
-    },
-  
     setup() {
       const route = useRoute();
-  
-      return { route };
-    },
-    watch: {
-      // Watch for changes in route.params.id to update the links accordingly
-      'route.params.id': {
-        immediate: true,
-        handler(newVal) {
-          this.updateLinks(newVal);
+      const links = ref([]);
+      const otherLinks = ref([
+        {
+          label: 'Settings',
+          icon: 'i-heroicons-chart-bar',
+          to: '/portal/settings',
         },
-      },
-    },
+        {
+          label: 'Logout',
+          icon: 'i-heroicons-arrow-right-on-rectangle-solid',
+          to: '/portal/logout',
+        },
+      ]);
   
-    methods: {
-      updateLinks(projectId) {
-        this.links = [
+      const updateLinks = (projectId) => {
+        links.value = [
           { label: 'Home', icon: 'i-heroicons-home', to: '/portal/home' },
         ];
   
         if (projectId) {
-          this.links.push(
-            { label: 'Datasets', icon: 'i-heroicons-circle-stack', to: '/portal/datasets' }, // Assuming '/portal/datasets' is correct
+          links.value.push(
+            { label: 'Datasets', icon: 'i-heroicons-circle-stack', to: `/project/${projectId}/dataimport/` },
             {
               label: 'Labels',
               icon: 'i-heroicons-tag',
@@ -92,75 +74,19 @@
             {
               label: 'Comments',
               icon: 'i-heroicons-chat-bubble-bottom-center-text',
-              to: '/portal/comments', // Assuming '/portal/comments' is correct
+              to: '/portal/comments',
             }
           );
         }
-      },
+      };
+  
+      watch(() => route.params.id, (newVal) => {
+        updateLinks(newVal);
+      }, { immediate: true });
+  
+      return { links, otherLinks };
     },
-  
-  
   }
-  
-  // const links = [
-  //     {
-  //         label: 'Home',
-  //         icon: 'i-heroicons-home',
-  //         to: '/portal/home'
-  //     },
-  //     {
-  //         label: 'Datasets',
-  //         icon: 'i-heroicons-circle-stack',
-  //         to: '/portal/home'
-  //     },
-  //     {
-  //         label: 'Labels',
-  //         icon: 'i-heroicons-tag',
-  //         to: '/project/[id]/label/labelhome'
-  //     },
-  //     {
-  //         label: 'Members',
-  //         icon: 'i-heroicons-users',
-  //         to: '/portal/home'
-  //     },
-  //     {
-  //         label: 'Comments',
-  //         icon: 'i-heroicons-chat-bubble-bottom-center-text',
-  //         to: '/portal/home'
-  //     },
-  // ]
-  
-  // const otherLinks = [{
-  //     label: 'Settings',
-  //     icon: 'i-heroicons-chart-bar',
-  //     to: '/portal/settings'
-  // }, {
-  //     label: 'Logout',
-  //     icon: 'i-heroicons-arrow-right-on-rectangle-solid',
-  //     to: '/portal/logout',
-  // }]
-  
-  // const navigationLinks = [
-  //     [{
-  //         label: 'Installation',
-  //         icon: 'i-heroicons-home',
-  //         to: '/portal'
-  //     }, {
-  //         label: 'Horizontal Navigation',
-  //         icon: 'i-heroicons-chart-bar',
-  //         to: '/portal'
-  //     }, {
-  //         label: 'Command Palette',
-  //         icon: 'i-heroicons-command-line',
-  //         to: '/portal'
-  //     }], [{
-  //         label: 'Examples',
-  //         icon: 'i-heroicons-light-bulb'
-  //     }, {
-  //         label: 'Help',
-  //         icon: 'i-heroicons-question-mark-circle'
-  //     }]
-  // ]
   </script>
   
   <style scoped>
