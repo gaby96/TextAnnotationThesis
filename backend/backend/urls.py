@@ -27,6 +27,7 @@ urlpatterns = [
     path("project/<int:project_id>/", include("label_types.urls")),
     path("data_import/", include("data_import.urls")),
     path('project/annotation/<int:project_id>/', include("labels.urls")),
-    path("project/dataset/<int:project_id>/", include("examples.urls"))
+    path("project/dataset/<int:project_id>/", include("examples.urls")),
+    path("project/dataset/", include("llmapp.urls"))
     
 ]

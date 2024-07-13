@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 from os import path
+import os
 from pathlib import Path
 from corsheaders.defaults import default_headers
 from datetime import timedelta
 from environs import Env, EnvError
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +51,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+
+#OPEN API KEY
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Application definition
 
@@ -82,7 +89,8 @@ INSTALLED_APPS = [
     'data_import',
     'examples',
     'label_types',
-    'labels'
+    'labels',
+    'llmapp'
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="text-container" ref="textContainer">
+        <div class="text-container shadow-lg shadow-md p-4 mr-2" ref="textContainer">
             <span v-for="(word, index) in words" :key="index" class="word text-lg space-x-10"
                 style="padding: 3px; line-height: 35px" @dblclick="handleDoubleClick(index)" :style="{
                     padding: '3px',
@@ -21,17 +21,67 @@
                 @label-selected="applyLabel" />
         </div>
 
-        <div class="divider"></div>
 
-        <div class="labels-container">
+        <div class="labels-container ml-6">
             <div class="grid grid-cols-3 gap-y-4 gap-x-0.5">
-            <div v-for="label in labels" :key="label.id">
-                <div class="preview-chip" :style="{ backgroundColor: label.background_color, color: label.text_color }">
-                    {{ label.text }}
-                    <span v-if="label.suffix_key" class="preview-avatar">{{ label.suffix_key }}</span>
+                <div v-for="label in labels" :key="label.id">
+                    <div class="preview-chip"
+                        :style="{ backgroundColor: label.background_color, color: label.text_color }">
+                        {{ label.text }}
+                        <span v-if="label.suffix_key" class="preview-avatar">{{ label.suffix_key }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <!-- component -->
+            <div class="min-h-screen py-6 flex flex-col justify-center relative overflow-hidden sm:py-12">
+                <div
+                    class="border relative px-4 pt-7 pb-8 bg-white shadow-xl w-full max-w-md mx-auto sm:px-10 rounded-b-md">
+                    
+                        <label for="dropdown" class="block">Model</label>
+                        <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
+                            <option value="">Select an option</option>
+                            <option value="option1">Option 1</option>
+                            <option value="option2">Option 2</option>
+                            <option value="option3">Option 3</option>
+                        </select>
+
+                        <label for="dropdown" class="block">Prompt Technique</label>
+                        <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
+                            <option value="">Select an option</option>
+                            <option value="option1">Option 1</option>
+                            <option value="option2">Option 2</option>
+                            <option value="option3">Option 3</option>
+                        </select>
+
+                        <label for="slider1" class="block">Temperature: <span id="slider1Value"
+                                class="text-red-500">0.00</span></label>
+                        <input type="range" id="slider1"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0"
+                            max="1" step="0.01" value="0"
+                            oninput="document.getElementById('slider1Value').innerText = parseFloat(this.value).toFixed(2);">
+                        <div class="flex justify-between text-xs text-gray-600">
+                            <span>0.00</span>
+                            <span>1.00</span>
+                        </div>
+
+                        <label for="slider2" class="block">Epochs: <span id="slider2Value"
+                                class="text-red-500">0.00</span></label>
+                        <input type="range" id="slider2"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0"
+                            max="1" step="0.01" value="0"
+                            oninput="document.getElementById('slider2Value').innerText = parseFloat(this.value).toFixed(2);">
+                        <div class="flex justify-between text-xs text-gray-600">
+                            <span>0.00</span>
+                            <span>1.00</span>
+                        </div>
+
+                        <button @click="handlePredict"
+                            class="mt-5 bg-green-500 hover:bg-blue-700 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
+                    
+                </div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -106,6 +156,7 @@ export default {
                 );
                 const data = await response.json();
                 this.labels = data;
+                // console.log(data)
 
             } catch (error) {
                 console.error("Error fetching example data:", error);
@@ -132,7 +183,7 @@ export default {
                     }
                 );
                 const data = await response.json();
-                console.log(data)
+                // console.log(data)
                 this.fullText = data.text;
                 this.processText(this.fullText);
                 this.fetchAnnotations();
@@ -238,17 +289,17 @@ export default {
                             example: parseInt(this.exampleId),
                         };
 
-                        console.log(annotation)
+                        //console.log(annotation)
                         // Check if the word is already in labeledWordsArray
                         const existingIndex = this.labeledWordsArray.findIndex(
                             (item) => item.start_offset === annotation.start_offset && item.endOffset === annotation.end_offset
                         );
 
-                        if (this.words[i].annotated) {
+                        if (existingIndex !== -1) {
                             // If the word is already annotated, update the annotation
-                            annotation.id = this.words[i].annotation_id;
+                            //annotation.id = this.words[i].annotation_id;
                             this.labeledWordsArray[existingIndex] = annotation;
-                           // await this.updateAnnotation(annotation);
+                            // await this.updateAnnotation(annotation);
                         } else {
                             // Add new entry to labeledWordsArray
                             this.words[i].annotated = true;
@@ -275,7 +326,7 @@ export default {
         async saveAnnotation(annotation) {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
-            //console.log(token)
+            console.log(annotation)
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
@@ -291,7 +342,7 @@ export default {
                     }
                 );
                 if (!response.ok) {
-                    console.log(response)
+                    // console.log(response)
                     throw new Error("Failed to save annotation");
                 }
                 const data = await response.json();
@@ -336,7 +387,6 @@ export default {
                 this.deleteAnnotation(word.annotation_id);
                 word.annotated = false;
                 word.label = null;
-                word.annotation_id = null; // Clear annotation ID
             }
         },
         async deleteAnnotation(annotation_id) {
@@ -370,6 +420,52 @@ export default {
                 this.showDropdown = false;
             }
         },
+
+        async handlePredict() {
+            await this.fetchLabels();
+            await this.fetchDataThatMightBeAnnotated();
+            if (this.labels.length > 0 && this.fullText) {
+                const combinedData = {
+                    data1: this.labels,
+                    data2: this.fullText
+                };
+
+                await this.handleLLMAnnotate(combinedData);
+                console.log('Processing data1:', this.labels);
+                console.log('Processing data2:', this.fullText);
+            } else {
+                console.log('One or both data sets are not available for processing');
+            }
+        },
+
+        async handleLLMAnnotate(combinedData) {
+            const authStore = useAuthStore();
+            const token = authStore.accessToken;
+
+            try {
+                const config = useRuntimeConfig();
+                const response = await fetch(
+                    `${config.public.baseURL}/project/dataset/examples/llmannotate`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(combinedData)
+                    }
+                );
+                const data = await response.json();
+                //console.log(data)
+                console.log("LLM Annotation Response:", data);
+               // this.applyAnnotations(data.annotations);
+            } catch (error) {
+                console.error("Error during LLM annotation:", error);
+            }
+        },
+
+
+
 
 
 
