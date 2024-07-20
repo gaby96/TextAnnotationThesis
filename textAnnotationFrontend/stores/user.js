@@ -45,6 +45,8 @@ export const userStore = defineStore('user', () => {
     userLastname,
     userObject
   };
+
+  
 },
   { persist: { persist: true } }
 );

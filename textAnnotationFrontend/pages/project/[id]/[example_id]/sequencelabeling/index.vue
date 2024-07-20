@@ -1,10 +1,10 @@
 <template>
     <div class="container">
-        <div class="text-container shadow-lg shadow-md p-4 mr-2" ref="textContainer">
-            <span v-for="(word, index) in words" :key="index" class="word text-lg space-x-10"
-                style="padding: 3px; line-height: 35px" @dblclick="handleDoubleClick(index)" :style="{
-                    padding: '3px',
-                    lineHeight: '35px',
+        <div class="text-container shadow-lg shadow-md p-4" ref="textContainer">
+            <span v-for="(word, index) in words" :key="index" class="word text-lg"
+                @dblclick="handleDoubleClick(index)"  :style="{
+                    padding: '0 1px',
+                    lineHeight: '0 1px',
                     backgroundColor: word.annotated ? word.label.background_color : ''
                 }">
                 {{ word.text }}
@@ -37,48 +37,48 @@
             <div class="min-h-screen py-6 flex flex-col justify-center relative overflow-hidden sm:py-12">
                 <div
                     class="border relative px-4 pt-7 pb-8 bg-white shadow-xl w-full max-w-md mx-auto sm:px-10 rounded-b-md">
-                    
-                        <label for="dropdown" class="block">Model</label>
-                        <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
-                            <option value="">Select an option</option>
-                            <option value="option1">Option 1</option>
-                            <option value="option2">Option 2</option>
-                            <option value="option3">Option 3</option>
-                        </select>
 
-                        <label for="dropdown" class="block">Prompt Technique</label>
-                        <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
-                            <option value="">Select an option</option>
-                            <option value="option1">Option 1</option>
-                            <option value="option2">Option 2</option>
-                            <option value="option3">Option 3</option>
-                        </select>
+                    <label for="dropdown" class="block">Model</label>
+                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
+                        <option value="">Select an option</option>
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                        <option value="option3">Option 3</option>
+                    </select>
 
-                        <label for="slider1" class="block">Temperature: <span id="slider1Value"
-                                class="text-red-500">0.00</span></label>
-                        <input type="range" id="slider1"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0"
-                            max="1" step="0.01" value="0"
-                            oninput="document.getElementById('slider1Value').innerText = parseFloat(this.value).toFixed(2);">
-                        <div class="flex justify-between text-xs text-gray-600">
-                            <span>0.00</span>
-                            <span>1.00</span>
-                        </div>
+                    <label for="dropdown" class="block">Prompt Technique</label>
+                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
+                        <option value="">Select an option</option>
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                        <option value="option3">Option 3</option>
+                    </select>
 
-                        <label for="slider2" class="block">Epochs: <span id="slider2Value"
-                                class="text-red-500">0.00</span></label>
-                        <input type="range" id="slider2"
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0"
-                            max="1" step="0.01" value="0"
-                            oninput="document.getElementById('slider2Value').innerText = parseFloat(this.value).toFixed(2);">
-                        <div class="flex justify-between text-xs text-gray-600">
-                            <span>0.00</span>
-                            <span>1.00</span>
-                        </div>
+                    <label for="slider1" class="block">Temperature: <span id="slider1Value"
+                            class="text-red-500">0.00</span></label>
+                    <input type="range" id="slider1"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0" max="1"
+                        step="0.01" value="0"
+                        oninput="document.getElementById('slider1Value').innerText = parseFloat(this.value).toFixed(2);">
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>0.00</span>
+                        <span>1.00</span>
+                    </div>
 
-                        <button @click="handlePredict"
-                            class="mt-5 bg-green-500 hover:bg-blue-700 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
-                    
+                    <label for="slider2" class="block">Epochs: <span id="slider2Value"
+                            class="text-red-500">0.00</span></label>
+                    <input type="range" id="slider2"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0" max="1"
+                        step="0.01" value="0"
+                        oninput="document.getElementById('slider2Value').innerText = parseFloat(this.value).toFixed(2);">
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>0.00</span>
+                        <span>1.00</span>
+                    </div>
+
+                    <button @click="handlePredict"
+                        class="mt-5 bg-green-500 hover:bg-blue-700 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
+
                 </div>
             </div>
 
@@ -114,9 +114,6 @@ export default {
         };
     },
     computed: {
-        renderedText() {
-            return this.words.map((word) => word.text).join("");
-        },
 
         annotateId() {
             return this.$route.params.annotate_id;
@@ -129,15 +126,9 @@ export default {
         exampleId() {
             return this.$route.params.example_id;
         },
-
-        //   userId() {
-        //     const userStore = userStore();
-        //     return userStore.userObject;
-        //   },
     },
     methods: {
-
-        //This method fetches the labels that are going to be used to annotate the data (PER, ORG, etc)
+        // This method fetches the labels that are going to be used to annotate the data (PER, ORG, etc)
         async fetchLabels() {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
@@ -157,16 +148,13 @@ export default {
                 const data = await response.json();
                 this.labels = data;
                 // console.log(data)
-
             } catch (error) {
                 console.error("Error fetching example data:", error);
                 // Handle error accordingly
             }
         },
 
-
-
-        // this is used to fetch the subject that is to be annotated or might even be annotated
+        // This is used to fetch the subject that is to be annotated or might even be annotated
         async fetchDataThatMightBeAnnotated() {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
@@ -183,7 +171,7 @@ export default {
                     }
                 );
                 const data = await response.json();
-                // console.log(data)
+                //console.log(data)
                 this.fullText = data.text;
                 this.processText(this.fullText);
                 this.fetchAnnotations();
@@ -193,7 +181,7 @@ export default {
             }
         },
 
-        //fetch data about annotations made ({start_offset, label, end_offset, example_id or the full text})
+        // Fetch data about annotations made ({start_offset, label, end_offset, example_id or the full text})
         async fetchAnnotations() {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
@@ -215,15 +203,44 @@ export default {
                 console.error("Error fetching annotations:", error);
             }
         },
+        // Method to apply LLM Annotations
+        // applyLLMAnnotations(newAnnotations) {
+        //     this.words = this.calculateOffsets(); // Calculate offsets for all words
+        //     console.log(this.words)
+
+        //     newAnnotations.forEach(annotation => {
+        //         const label = this.labels.find(l => l.id === annotation.label);
+        //         if (!label) return;
+
+        //         this.words.forEach(word => {
+        //             // Check if the word is within the start and end offsets of the annotation
+        //             if (word.startOffset < annotation.end_offset && word.endOffset > annotation.start_offset) {
+        //                 word.annotated = true;
+        //                 word.label = label;
+        //                 word.annotation_id = annotation.id;
+        //                 word.background_color = label.background_color;
+        //             }
+        //         });
+        //     });
+        // },
+
+
         applyAnnotations(annotations) {
+            //fetches annotations from API
             this.annotations = annotations;
+            console.log(annotations)
+
+            //calculate the offset for each word in the text
             this.words = this.calculateOffsets(); // Calculate offsets for all words
+
+            console.log(this.words)
 
             annotations.forEach(annotation => {
                 const label = this.labels.find(l => l.id === annotation.label);
                 if (!label) return;
 
                 this.words.forEach(word => {
+                    // Check if the word is within the start and end offsets of the annotation
                     if (word.startOffset >= annotation.start_offset && word.endOffset <= annotation.end_offset) {
                         word.annotated = true;
                         word.label = label;
@@ -231,6 +248,8 @@ export default {
                     }
                 });
             });
+
+            console.log(this.words)
         },
         processText(text) {
             const lines = text.split("\n");
@@ -289,7 +308,6 @@ export default {
                             example: parseInt(this.exampleId),
                         };
 
-                        //console.log(annotation)
                         // Check if the word is already in labeledWordsArray
                         const existingIndex = this.labeledWordsArray.findIndex(
                             (item) => item.start_offset === annotation.start_offset && item.endOffset === annotation.end_offset
@@ -297,9 +315,7 @@ export default {
 
                         if (existingIndex !== -1) {
                             // If the word is already annotated, update the annotation
-                            //annotation.id = this.words[i].annotation_id;
                             this.labeledWordsArray[existingIndex] = annotation;
-                            // await this.updateAnnotation(annotation);
                         } else {
                             // Add new entry to labeledWordsArray
                             this.words[i].annotated = true;
@@ -307,8 +323,6 @@ export default {
                             this.labeledWordsArray.push(annotation);
                             await this.saveAnnotation(annotation);
                         }
-
-
                     }
                 }
 
@@ -322,7 +336,7 @@ export default {
             }
         },
 
-        //save annotation object which contains the start_offset, end_offset, label, data
+        // Save annotation object which contains the start_offset, end_offset, label, data
         async saveAnnotation(annotation) {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
@@ -337,12 +351,10 @@ export default {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-
                         body: JSON.stringify(annotation)
                     }
                 );
                 if (!response.ok) {
-                    // console.log(response)
                     throw new Error("Failed to save annotation");
                 }
                 const data = await response.json();
@@ -350,34 +362,6 @@ export default {
             } catch (error) {
                 console.error("Error saving annotation:", error);
                 // Handle error accordingly
-            }
-        },
-
-        async updateAnnotation(annotation) {
-            const authStore = useAuthStore();
-            const token = authStore.accessToken;
-
-            try {
-                const config = useRuntimeConfig();
-                const response = await fetch(
-                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/spans/${annotation.id}`,
-                    {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-
-                        body: JSON.stringify(annotation)
-                    }
-                );
-                if (!response.ok) {
-                    throw new Error("Failed to update Annotation");
-                }
-
-            }
-            catch (error) {
-                console.error("Error updating annotation", error);
             }
         },
 
@@ -402,7 +386,6 @@ export default {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`,
                         },
-
                     }
                 );
                 if (!response.ok) {
@@ -424,15 +407,17 @@ export default {
         async handlePredict() {
             await this.fetchLabels();
             await this.fetchDataThatMightBeAnnotated();
+            const authStore = useAuthStore();
+            let userObject = authStore.user;
             if (this.labels.length > 0 && this.fullText) {
                 const combinedData = {
                     data1: this.labels,
-                    data2: this.fullText
+                    data2: this.fullText,
+                    exampleId: parseInt(this.exampleId),
+                    userId: userObject.id
                 };
-
+                console.log(combinedData)
                 await this.handleLLMAnnotate(combinedData);
-                console.log('Processing data1:', this.labels);
-                console.log('Processing data2:', this.fullText);
             } else {
                 console.log('One or both data sets are not available for processing');
             }
@@ -456,19 +441,19 @@ export default {
                     }
                 );
                 const data = await response.json();
-                //console.log(data)
-                console.log("LLM Annotation Response:", data);
-               // this.applyAnnotations(data.annotations);
+                const newAnnotations = data.data;
+               // this.applyLLMAnnotations(newAnnotations)
+                console.log("LLM Annotation Response:", newAnnotations);
             } catch (error) {
                 console.error("Error during LLM annotation:", error);
             }
         },
 
-
-
-
-
-
+        userId() {
+            const userStoreInstance = userStore();
+            console.log(userStoreInstance.userObject);
+            return userStoreInstance.userObject;
+        },
     },
     mounted() {
         this.fetchDataThatMightBeAnnotated();
@@ -481,6 +466,8 @@ export default {
     },
 };
 </script>
+
+
 
 <style scoped>
 .container {
@@ -540,16 +527,16 @@ export default {
 
 .word {
     margin-right: 0px;
-    cursor: pointer;
-    padding: 3px;
+    /* cursor: pointer; */
+    /* padding: 3px; */
     line-height: 35px;
     transition: background-color 0.3s, box-shadow 0.3s;
     border-radius: 8px;
 }
 
-.word:hover {
+/* .word:hover {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .annotation-label {
     font-size: 11px;

@@ -19,7 +19,6 @@ from label_types.models import CategoryType, RelationType, SpanType
 
 class Label(models.Model):
     objects = LabelManager()
-
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)
     prob = models.FloatField(default=0.0)
     manual = models.BooleanField(default=False)
@@ -44,6 +43,7 @@ class Span(Label):
     objects = SpanManager()
     example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="spans", null=True)
     label = models.ForeignKey(to=SpanType, on_delete=models.CASCADE, null=True)
+    annotated_by=models.TextField(default="human", null=True)
     start_offset = models.IntegerField()
     end_offset = models.IntegerField()
 

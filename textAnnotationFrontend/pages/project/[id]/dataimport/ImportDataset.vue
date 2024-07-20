@@ -50,13 +50,14 @@
 
 <script>
 definePageMeta({
-  layout: 'portal'
+    layout: 'portal'
 })
 import { useAuthStore } from '@/stores/auth';
 // Import FilePond
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import "filepond/dist/filepond.min.css";
 import vueFilePond from "vue-filepond";
+import { toast } from 'vue3-toastify';
 const FilePond = vueFilePond(FilePondPluginFileValidateType)
 
 export default {
@@ -97,6 +98,13 @@ export default {
                 ...this.option,
             };
 
+            const toastId = toast.loading('Upload started', {
+                position: 'top-right',
+                timeout: 2000, // Keeps the toast visible until manually dismissed
+                closeOnClick: false,
+                draggable: false,
+            });
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
@@ -112,7 +120,16 @@ export default {
                 }
 
                 const responseData = await response.json();
-                this.taskId = responseData.task_id; // Adjust based on the actual key in the response
+                this.taskId = responseData.task_id;
+                console.log(this.taskId)
+                toast.update(toastId, {
+                    type: 'success',
+                    render: 'Upload successful',
+                    timeout: 2000, // Toast will disappear after 5 seconds
+                    closeOnClick: true,
+                    draggable: true,
+                });
+                //this.$router.push(`/project/${this.projectId}/dataimport`);
 
             } catch (error) {
                 console.error('Error importing dataset:', error);
@@ -175,7 +192,7 @@ export default {
                             this.isImporting = false;
 
                             if (this.errors.length === 0) {
-                                navigateTo(`/project/${this.projectId}/label/labelhome`);
+                               // navigateTo(`/project/${this.projectId}/label/labelhome`);
                                 //this.$router.push(`/projects/${this.$route.params.id}/dataset`);
                             }
                         }
@@ -329,13 +346,18 @@ export default {
             } else {
                 return ''
             }
-        }
+        },
+
+        // appearNotif() {
+        //     toast.info('Wow so easy!');
+        // }
     },
 
 
 
     mounted() {
         this.fetchCatalog();
+        
     },
 
 
