@@ -126,6 +126,8 @@ definePageMeta({
 
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import { usecurrentProjectStore } from "@/stores/currentproject";
+
 export default {
   name: 'CreateLabel',
   data() {
@@ -133,6 +135,7 @@ export default {
       label_name: '', // Assuming a model for the input field
       email: '', // Assuming a model for the input field
       job: '', // Assuming a model for the input field
+      project: null,
       items: [], // Assuming this is needed for availableSuffixKeys computed property
       suffixKey: '', // Assuming this is needed for availableSuffixKeys computed property
       backgroundColor: '#FFFFFF',
@@ -197,6 +200,10 @@ export default {
     },
   },
 
+  mounted() {
+    this.fetchProject()
+  },
+
   watch: {
     selectedColorIndex(value) {
       if (value < this.predefinedColors.length) {
@@ -207,6 +214,13 @@ export default {
   methods: {
     setColor(color) {
       this.backgroundColor = color;
+    },
+
+    async fetchProject() {
+      const projectStore = usecurrentProjectStore();
+      await projectStore.fetchProjectById(this.projectId);
+      this.project = projectStore.project;
+      console.log(this.project)
     },
 
     async fetchLabels() {
@@ -226,33 +240,63 @@ export default {
         text_color: this.textColor, // Include the computed textColor here
       });
 
+      if (this.project.project_type === "DocumentClassification") {
+        try {
+          const config = useRuntimeConfig()
+          const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: payload,
+          });
 
-      try {
-        const config = useRuntimeConfig()
-        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: payload,
-        });
+          if (!response.ok) {
+            console.log(response.error)
+            throw new Error('Network response was not ok');
 
-        if (!response.ok) {
-          console.log(response.error)
-          throw new Error('Network response was not ok');
+          }
 
+          // Handle success
+          const data = await response.json();
+          this.fetchLabels();
+          // Possibly redirect the user or clear the form
+          // Redirect the user to the desired page
+          navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
+        } catch (error) {
+          console.error('There was a problem with your fetch operation:', error);
+          // Handle the error, possibly show user feedback
         }
+      }
+      else if (this.project.project_type === "SequenceLabeling") {
+        try {
+          const config = useRuntimeConfig()
+          const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: payload,
+          });
 
-        // Handle success
-        const data = await response.json();
-        this.fetchLabels();
-        // Possibly redirect the user or clear the form
-        // Redirect the user to the desired page
-        navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
-      } catch (error) {
-        console.error('There was a problem with your fetch operation:', error);
-        // Handle the error, possibly show user feedback
+          if (!response.ok) {
+            console.log(response.error)
+            throw new Error('Network response was not ok');
+
+          }
+
+          // Handle success
+          const data = await response.json();
+          this.fetchLabels();
+          // Possibly redirect the user or clear the form
+          // Redirect the user to the desired page
+          navigateTo(`/project/${this.projectId}/label/labelhome`); // Adjust the path as needed
+        } catch (error) {
+          console.error('There was a problem with your fetch operation:', error);
+          // Handle the error, possibly show user feedback
+        }
       }
     },
 

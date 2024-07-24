@@ -90,7 +90,7 @@ export default {
             const config = useRuntimeConfig()
             const authStore = useAuthStore();
             const token = authStore.accessToken
-            const url = `${config.public.baseURL}/data_import/projects/${this.$route.params.id}/upload`; // Assuming this is the correct endpoint
+            const url = `${config.public.baseURL}/data_import/projects/${this.$route.params.id}/upload`; 
             const data = {
                 format: item.name,
                 task: item.task_id,

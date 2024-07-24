@@ -56,6 +56,7 @@ class ExampleSerializer(serializers.ModelSerializer):
         model = Example
         fields = [
             "id",
+            "uuid",
             "filename",
             "meta",
             "annotation_approver",

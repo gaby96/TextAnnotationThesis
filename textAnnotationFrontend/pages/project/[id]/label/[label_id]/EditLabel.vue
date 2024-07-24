@@ -136,6 +136,7 @@ export default {
       suffixKey: '', // Assuming this is needed for availableSuffixKeys computed property
       backgroundColor: '#FFFFFF',
       selectedColorIndex: 0,
+      project: null,
       valid: false,
       rules: {
         required: value => !!value || 'Required',
@@ -213,35 +214,74 @@ export default {
       return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000000' : '#FFFFFF';
     },
 
+    async fetchProject() {
+      const projectStore = usecurrentProjectStore();
+      await projectStore.fetchProjectById(this.projectId);
+      this.project = projectStore.project;
+     // console.log(this.project)
+    },
+
     async editLabel() {
       const authStore = useAuthStore();
       const token = authStore.accessToken;
-      try {
-        const config = useRuntimeConfig();
-        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types/${this.labelId}`, {
-          method: 'PUT', // or 'PATCH' if partially updating
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            text: this.label_name,
-            suffix_key: this.suffixKey,
-            background_color: this.backgroundColor,
-            // Add any other fields that are being updated
-          }),
-        });
+      if (this.project.project_type === 'DocumentClassification') {
+        try {
+          const config = useRuntimeConfig();
+          const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types/${this.labelId}`, {
+            method: 'PUT', // or 'PATCH' if partially updating
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              text: this.label_name,
+              suffix_key: this.suffixKey,
+              background_color: this.backgroundColor,
+              // Add any other fields that are being updated
+            }),
+          });
 
-        if (!response.ok) {
-          throw new Error('Failed to update the label');
+          if (!response.ok) {
+            throw new Error('Failed to update the label');
+          }
+
+          // Optionally, update local state or notify the user of success
+          console.log('Label updated successfully');
+          navigateTo(`/project/${this.projectId}/label/labelhome`);
+        } catch (error) {
+          console.error('Error updating label:', error);
+          // Handle error accordingly, such as displaying an error message to the user
         }
+      }
 
-        // Optionally, update local state or notify the user of success
-        console.log('Label updated successfully');
-        navigateTo(`/project/${this.projectId}/label/labelhome`);
-      } catch (error) {
-        console.error('Error updating label:', error);
-        // Handle error accordingly, such as displaying an error message to the user
+      else if (this.project.project_type === 'SequenceLabeling') {
+        try {
+          const config = useRuntimeConfig();
+          const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types/${this.labelId}`, {
+            method: 'PUT', // or 'PATCH' if partially updating
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              text: this.label_name,
+              suffix_key: this.suffixKey,
+              background_color: this.backgroundColor,
+              // Add any other fields that are being updated
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to update the label');
+          }
+
+          // Optionally, update local state or notify the user of success
+          console.log('Label updated successfully');
+          navigateTo(`/project/${this.projectId}/label/labelhome`);
+        } catch (error) {
+          console.error('Error updating label:', error);
+          // Handle error accordingly, such as displaying an error message to the user
+        }
       }
     },
 
@@ -249,25 +289,51 @@ export default {
     async fetchLabelData() {
       const authStore = useAuthStore()
       const token = authStore.accessToken
-      try {
-        const config = useRuntimeConfig()
-        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types/${this.labelId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        });
-        const data = await response.json();
-        // console.log(data)
-        this.label_name = data.text;
-        this.suffixKey = data.suffix_key;
-        this.backgroundColor = data.background_color;
-        this.textColor = data.text_color
+      //console.log(this.project)
+      if (this.project.project_type === 'DocumentClassification') {
+        try {
+          const config = useRuntimeConfig()
+          const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/category-types/${this.labelId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+          });
+          const data = await response.json();
+          // console.log(data)
+          this.label_name = data.text;
+          this.suffixKey = data.suffix_key;
+          this.backgroundColor = data.background_color;
+          this.textColor = data.text_color
 
-      } catch (error) {
-        console.error('Error fetching label data:', error);
-        // Handle error accordingly
+        } catch (error) {
+          console.error('Error fetching label data:', error);
+          // Handle error accordingly
+        }
+      }
+
+      else if (this.project.project_type === 'SequenceLabeling') {
+        try {
+          const config = useRuntimeConfig()
+          const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types/${this.labelId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+          });
+          const data = await response.json();
+          // console.log(data)
+          this.label_name = data.text;
+          this.suffixKey = data.suffix_key;
+          this.backgroundColor = data.background_color;
+          this.textColor = data.text_color
+
+        } catch (error) {
+          console.error('Error fetching label data:', error);
+          // Handle error accordingly
+        }
       }
     }
 
@@ -275,8 +341,11 @@ export default {
 
 
 
-  mounted() {
-    this.fetchLabelData();
+  async mounted() {
+    await this.fetchProject();
+    if (this.project) {
+      await this.fetchLabelData();
+    }
   },
 
   watch: {
