@@ -13,7 +13,7 @@ from projects.permissions import IsProjectAdmin, IsProjectStaffAndReadOnly, IsPr
 
 class ExampleList(generics.ListCreateAPIView):
     serializer_class = ExampleSerializer
-    permission_classes = [IsAuthenticated & IsProjectMember]
+    #permission_classes = [IsAuthenticated & IsProjectMember]
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     ordering_fields = ("created_at", "updated_at", "score")
     search_fields = ("text", "filename")

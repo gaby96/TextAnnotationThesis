@@ -10,7 +10,7 @@ from projects.permissions import IsProjectMember
 
 
 class CommentList(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated & IsProjectMember]
+    permission_classes = [IsAuthenticated]
     serializer_class = CommentSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     filterset_fields = ["example"]

@@ -1,35 +1,38 @@
 <template>
+    <div class="button-container grid grid-cols-2 gap-4">
+        <!-- Modal toggle -->
+        <button @click="openModal"
+            class="mt-5 bg-green-500 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
+            type="button">
+            Add Comment
+        </button>
+
+        <button class="mt-5 bg-green-900 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
+            type="button">
+            Add Guidelines
+        </button>
+    </div>
     <div class="container">
         <div class="text-container shadow-lg shadow-md p-4" ref="textContainer">
-            <span v-for="(word, index) in words" :key="index" class="word text-lg"
-                @dblclick="handleDoubleClick(index)"  :style="{
-                    padding: '0 1px',
-                    lineHeight: '0 1px',
-                    backgroundColor: word.annotated ? word.label.background_color : ''
-                }">
-                {{ word.text }}
-                <span v-if="word.annotated" class="annotation-label text-xs rounded-lg"
-                    :style="{ backgroundColor: word.label.background_color }">
-                    {{ word.label.text }}
-                    <button class="remove-btn" @click="removeAnnotation(index)">X</button>
-                </span>
+            <span class="word text-lg">
+                {{ fullText }}
             </span>
         </div>
-
-        <div>
-            <DropdownMenu v-if="showDropdown" :labels="labels" ref="dropdownMenu" :position="dropdownPosition"
-                @label-selected="applyLabel" />
-        </div>
-
-
         <div class="labels-container ml-6">
             <div class="grid grid-cols-3 gap-y-4 gap-x-0.5">
                 <div v-for="label in labels" :key="label.id">
-                    <div class="preview-chip"
+                    <button @click="selectLabel(label)" class="preview-chip"
                         :style="{ backgroundColor: label.background_color, color: label.text_color }">
                         {{ label.text }}
                         <span v-if="label.suffix_key" class="preview-avatar">{{ label.suffix_key }}</span>
-                    </div>
+                        <span v-if="label.id === selectedLabelID" class="ml-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                            </svg>
+                        </span>
+
+                    </button>
                 </div>
             </div>
 
@@ -39,14 +42,14 @@
                     class="border relative px-4 pt-7 pb-8 bg-white shadow-xl w-full max-w-md mx-auto sm:px-10 rounded-b-md">
 
                     <label for="dropdown" class="block">Model</label>
-                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
-                        <option value="">Select an option</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                        <option value="option3">Option 3</option>
+                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md" v-model="selectedModel">
+                        <option value="Select an option">Select an option</option>
+                        <option value="GPT-4">GPT-4</option>
+                        <option value="BERT">BERT</option>
+                        <!-- <option value="option3">Option 3</option> -->
                     </select>
 
-                    <label for="dropdown" class="block">Prompt Technique</label>
+                    <!-- <label for="dropdown" class="block">Prompt Technique</label>
                     <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
                         <option value="">Select an option</option>
                         <option value="option1">Option 1</option>
@@ -74,15 +77,18 @@
                     <div class="flex justify-between text-xs text-gray-600">
                         <span>0.00</span>
                         <span>1.00</span>
-                    </div>
+                    </div> -->
 
                     <button @click="handlePredict"
-                        class="mt-5 bg-green-500 hover:bg-blue-700 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
+                        class="mt-5 bg-green-500 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
 
                 </div>
             </div>
 
         </div>
+
+        <CrudModal :isModalVisible="isModalVisible" :projectId="projectId" :exampleId="exampleId" @close="closeModal" />
+
     </div>
 </template>
 
@@ -90,13 +96,15 @@
 definePageMeta({
     layout: 'portal'
 });
+import CrudModal from "@/components/CrudModal.vue";
 import DropdownMenu from "@/components/DropdownMenu.vue";
 import { useAuthStore } from "@/stores/auth"; // Import useAuthStore if using Pinia
 import { userStore } from "@/stores/user";
+import { toast } from 'vue3-toastify';
 
 export default {
     components: {
-        DropdownMenu,
+        CrudModal,
     },
     data() {
         return {
@@ -105,19 +113,18 @@ export default {
             dropdownPosition: { x: 0, y: 0 },
             labels: [],
             annotation: {},
-            annotations: [],
+            annotatedLabel: null,
             fullText: null,
             words: [],
+            isModalVisible: false,
             startWordIndex: -1,
             endWordIndex: -1,
+            selectedModel: null,
+            selectedLabelID: null,
             isSelecting: false,
         };
     },
     computed: {
-
-        annotateId() {
-            return this.$route.params.annotate_id;
-        },
 
         projectId() {
             return this.$route.params.id;
@@ -126,17 +133,25 @@ export default {
         exampleId() {
             return this.$route.params.example_id;
         },
+
     },
     methods: {
+        openModal() {
+            this.isModalVisible = true;
+        },
+
+        closeModal() {
+            this.isModalVisible = false;
+        },
         // This method fetches the labels that are going to be used to annotate the data (PER, ORG, etc)
-        async fetchLabels() {
+        async fetchCategoryLabels() {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
 
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
-                    `${config.public.baseURL}/project/${this.projectId}/span-types`,
+                    `${config.public.baseURL}/project/${this.projectId}/category-types`,
                     {
                         method: "GET",
                         headers: {
@@ -147,7 +162,7 @@ export default {
                 );
                 const data = await response.json();
                 this.labels = data;
-                // console.log(data)
+                //console.log(this.labels)
             } catch (error) {
                 console.error("Error fetching example data:", error);
                 // Handle error accordingly
@@ -173,8 +188,6 @@ export default {
                 const data = await response.json();
                 //console.log(data)
                 this.fullText = data.text;
-                this.processText(this.fullText);
-                this.fetchAnnotations();
             } catch (error) {
                 console.error("Error fetching example data:", error);
                 // Handle error accordingly
@@ -182,13 +195,13 @@ export default {
         },
 
         // Fetch data about annotations made ({start_offset, label, end_offset, example_id or the full text})
-        async fetchAnnotations() {
+        async fetchAnnotatedLabel() {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
-                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/spans`,
+                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/categories`,
                     {
                         method: "GET",
                         headers: {
@@ -197,168 +210,43 @@ export default {
                         },
                     }
                 );
-                const annotations = await response.json();
-                this.applyAnnotations(annotations);
+                const getLabel = await response.json();
+                console.log(getLabel)
+                this.selectedLabelID = getLabel[0].label
+                //console.log(this.selectedLabelID)
             } catch (error) {
                 console.error("Error fetching annotations:", error);
             }
         },
-        // Method to apply LLM Annotations
-        // applyLLMAnnotations(newAnnotations) {
-        //     this.words = this.calculateOffsets(); // Calculate offsets for all words
-        //     console.log(this.words)
-
-        //     newAnnotations.forEach(annotation => {
-        //         const label = this.labels.find(l => l.id === annotation.label);
-        //         if (!label) return;
-
-        //         this.words.forEach(word => {
-        //             // Check if the word is within the start and end offsets of the annotation
-        //             if (word.startOffset < annotation.end_offset && word.endOffset > annotation.start_offset) {
-        //                 word.annotated = true;
-        //                 word.label = label;
-        //                 word.annotation_id = annotation.id;
-        //                 word.background_color = label.background_color;
-        //             }
-        //         });
-        //     });
-        // },
 
 
-        applyAnnotations(annotations) {
-            //fetches annotations from API
-            this.annotations = annotations;
-            console.log(annotations)
-
-            //calculate the offset for each word in the text
-            this.words = this.calculateOffsets(); // Calculate offsets for all words
-
-            console.log(this.words)
-
-            annotations.forEach(annotation => {
-                const label = this.labels.find(l => l.id === annotation.label);
-                if (!label) return;
-
-                this.words.forEach(word => {
-                    // Check if the word is within the start and end offsets of the annotation
-                    if (word.startOffset >= annotation.start_offset && word.endOffset <= annotation.end_offset) {
-                        word.annotated = true;
-                        word.label = label;
-                        word.annotation_id = annotation.id;
-                    }
-                });
-            });
-
-            console.log(this.words)
-        },
-        processText(text) {
-            const lines = text.split("\n");
-            this.words = lines.flatMap((line) => {
-                const wordsInLine = line.split(" ").map((word) => ({
-                    text: word,
-                    annotated: false,
-                    label: null,
-                    startOffset: null,
-                    endOffset: null,
-                    annotation_id: null
-                }));
-                wordsInLine.push({ text: "\n", annotated: false, label: null, startOffset: null, endOffset: null });
-                return wordsInLine;
-            });
-        },
-        handleDoubleClick(index) {
-            // Handle double click event on a specific word (index)
-            this.startWordIndex = index;
-            this.endWordIndex = index;
-            this.calculateDropdownPosition(index);
-            this.showDropdown = true; // Show dropdown menu
-        },
-
-        calculateDropdownPosition(index) {
-            // Calculate position based on the index of the word
-            const spanElement = this.$refs.textContainer.children[index];
-            if (spanElement) {
-                const rect = spanElement.getBoundingClientRect();
-                this.dropdownPosition.x = rect.left + window.scrollX;
-                this.dropdownPosition.y = rect.bottom + window.scrollY;
-            }
-        },
-        calculateOffsets() {
-            let offset = 0;
-            return this.words.map((word) => {
-                const startOffset = offset;
-                const endOffset = startOffset + word.text.length;
-                offset = endOffset + 1; // +1 for the space or line break
-                return { ...word, startOffset, endOffset };
-            });
-        },
-        async applyLabel(label) {
-            if (this.startWordIndex !== -1 && this.endWordIndex !== -1) {
-                // Apply label to the words from startWordIndex to endWordIndex
-                this.words = this.calculateOffsets(); // Calculate offsets for all words
-
-                for (let i = this.startWordIndex; i <= this.endWordIndex; i++) {
-                    if (!this.words[i].annotated) {
-                        this.words[i].annotated = true;
-                        this.words[i].label = label;
-                        const annotation = {
-                            label: label.id,
-                            start_offset: this.words[i].startOffset,
-                            end_offset: this.words[i].endOffset,
-                            example: parseInt(this.exampleId),
-                        };
-
-                        // Check if the word is already in labeledWordsArray
-                        const existingIndex = this.labeledWordsArray.findIndex(
-                            (item) => item.start_offset === annotation.start_offset && item.endOffset === annotation.end_offset
-                        );
-
-                        if (existingIndex !== -1) {
-                            // If the word is already annotated, update the annotation
-                            this.labeledWordsArray[existingIndex] = annotation;
-                        } else {
-                            // Add new entry to labeledWordsArray
-                            this.words[i].annotated = true;
-                            this.words[i].label = label;
-                            this.labeledWordsArray.push(annotation);
-                            await this.saveAnnotation(annotation);
-                        }
-                    }
-                }
-
-                // Reset selection and hide dropdown
-                this.startWordIndex = -1;
-                this.endWordIndex = -1;
-                this.showDropdown = false;
-
-                // Log the updated array of labeled words
-                //console.log(this.labeledWordsArray);
-            }
-        },
-
-        // Save annotation object which contains the start_offset, end_offset, label, data
-        async saveAnnotation(annotation) {
+        // Save annotation object which contains the example ID and the label ID
+        async saveAnnotation(label_id) {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
-            console.log(annotation)
+            console.log(label_id)
+            const annotationBody = {
+                label: label_id,
+                example: parseInt(this.exampleId),
+            };
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
-                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/spans`,
+                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/categories`,
                     {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify(annotation)
+                        body: JSON.stringify(annotationBody)
                     }
                 );
                 if (!response.ok) {
                     throw new Error("Failed to save annotation");
                 }
                 const data = await response.json();
-                annotation.id = data.id;
+                // console.log(data)
             } catch (error) {
                 console.error("Error saving annotation:", error);
                 // Handle error accordingly
@@ -405,7 +293,7 @@ export default {
         },
 
         async handlePredict() {
-            await this.fetchLabels();
+            await this.fetchCategoryLabels();
             await this.fetchDataThatMightBeAnnotated();
             const authStore = useAuthStore();
             let userObject = authStore.user;
@@ -414,9 +302,10 @@ export default {
                     data1: this.labels,
                     data2: this.fullText,
                     exampleId: parseInt(this.exampleId),
+                    selectedModel: this.selectedModel,
                     userId: userObject.id
                 };
-                console.log(combinedData)
+                //console.log(combinedData)
                 await this.handleLLMAnnotate(combinedData);
             } else {
                 console.log('One or both data sets are not available for processing');
@@ -430,7 +319,7 @@ export default {
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
-                    `${config.public.baseURL}/project/dataset/examples/llmannotate`,
+                    `${config.public.baseURL}/project/dataset/examples/docClassllmannotate`,
                     {
                         method: 'POST',
                         headers: {
@@ -442,11 +331,19 @@ export default {
                 );
                 const data = await response.json();
                 const newAnnotations = data.data;
-               // this.applyLLMAnnotations(newAnnotations)
-                console.log("LLM Annotation Response:", newAnnotations);
+                // console.log(data)
+                this.selectedLabelID = newAnnotations[0].label
+                toast.success("Text Successfully Annotated")
+                console.log("LLM Annotation Response:", this.selectedLabelID);
             } catch (error) {
                 console.error("Error during LLM annotation:", error);
             }
+        },
+
+        async selectLabel(label) {
+            this.selectedLabelID = label.id
+            await this.saveAnnotation(this.selectedLabelID)
+
         },
 
         userId() {
@@ -457,7 +354,8 @@ export default {
     },
     mounted() {
         this.fetchDataThatMightBeAnnotated();
-        this.fetchLabels();
+        this.fetchCategoryLabels();
+        this.fetchAnnotatedLabel();
         document.addEventListener('click', this.handleClickOutside);
     },
 
@@ -502,6 +400,12 @@ export default {
     width: 2px;
     background-color: #000000;
     margin: 0 10px;
+}
+
+.button-container {
+    width: 60%;
+    margin-top: auto;
+    padding-right: 20px;
 }
 
 .text-container {

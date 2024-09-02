@@ -39,11 +39,11 @@
                     class="border relative px-4 pt-7 pb-8 bg-white shadow-xl w-full max-w-md mx-auto sm:px-10 rounded-b-md">
 
                     <label for="dropdown" class="block">Model</label>
-                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
+                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md" v-model="selectedModel">
                         <option value="">Select an option</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                        <option value="option3">Option 3</option>
+                        <option value="GPT-4">GPT-4</option>
+                        <option value="BERT">BERT</option>
+                        <!-- <option value="option3">Option 3</option> -->
                     </select>
 
                     <label for="dropdown" class="block">Prompt Technique</label>
@@ -93,6 +93,7 @@ definePageMeta({
 import DropdownMenu from "@/components/DropdownMenu.vue";
 import { useAuthStore } from "@/stores/auth"; // Import useAuthStore if using Pinia
 import { userStore } from "@/stores/user";
+import { selectedRect } from "@tiptap/pm/tables";
 
 export default {
     components: {
@@ -108,6 +109,7 @@ export default {
             annotations: [],
             fullText: null,
             words: [],
+            selectedModel: null,
             startWordIndex: -1,
             endWordIndex: -1,
             isSelecting: false,
@@ -228,12 +230,12 @@ export default {
         applyAnnotations(annotations) {
             //fetches annotations from API
             this.annotations = annotations;
-            console.log(annotations)
+          // console.log(annotations)
 
             //calculate the offset for each word in the text
             this.words = this.calculateOffsets(); // Calculate offsets for all words
 
-            console.log(this.words)
+           // console.log(this.words)
 
             annotations.forEach(annotation => {
                 const label = this.labels.find(l => l.id === annotation.label);
@@ -249,7 +251,7 @@ export default {
                 });
             });
 
-            console.log(this.words)
+          //  console.log(this.words)
         },
         processText(text) {
             const lines = text.split("\n");
@@ -409,14 +411,16 @@ export default {
             await this.fetchDataThatMightBeAnnotated();
             const authStore = useAuthStore();
             let userObject = authStore.user;
+           // console.log(this.selectedModel)
             if (this.labels.length > 0 && this.fullText) {
                 const combinedData = {
                     data1: this.labels,
                     data2: this.fullText,
                     exampleId: parseInt(this.exampleId),
+                    selectedModel: this.selectedModel,
                     userId: userObject.id
                 };
-                console.log(combinedData)
+               // console.log(data2)
                 await this.handleLLMAnnotate(combinedData);
             } else {
                 console.log('One or both data sets are not available for processing');

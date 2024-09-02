@@ -3,7 +3,7 @@
 
     <div class="relative inline-block text-left">
       <div class="group ">
-        <RouterLink :to="`/project/${projectId}/label/createlabel`" class="text-blue-500 hover:text-blue-700">
+        <RouterLink :to="`/project/${projectId}/label/createlabel`">
           <button type="button"
             class="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:bg-green-600">
             Add Label
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <div class="w-full  overflow-hidden rounded-lg border border-gray-200 shadow-md my-7 mb-4">
+    <div class="w-full overflow-hidden rounded-lg border border-gray-200 shadow-md my-7 mb-4">
       <div class="overflow-x-auto">
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 ">
           <thead class="bg-gray-50">
@@ -173,21 +173,47 @@ export default {
       labels: [],
       projectId: this.$route.params.id, // Initialize projectId from route params
       dropdownVisible: false, // Controls the visibility of the dropdown
-      days: ['Sunday', 'Monday'], // Days of the week for the dropdown
     };
   },
   async mounted() {
-    await this.fetchLabels();
+    await this.fetchProject();
+    await this.fetchLabelData();
   },
   methods: {
     toggleDropdown() {
       this.dropdownVisible = !this.dropdownVisible; // Toggle the visibility state
     },
 
-    async fetchLabels() {
-      const labelStore = useLabelStore();
-      await labelStore.fetchLabels(this.projectId);
-      this.labels = labelStore.labels; // Assuming labels is an array. Adjust based on your store's structure
+    async fetchLabelData() {
+      const authStore = useAuthStore();
+      const token = authStore.accessToken;
+      const config = useRuntimeConfig();
+
+      let url;
+      if (this.project.project_type === 'DocumentClassification') {
+        url = `${config.public.baseURL}/project/${this.projectId}/category-types`;
+      } else if (this.project.project_type === 'SequenceLabeling') {
+        url = `${config.public.baseURL}/project/${this.projectId}/span-types`;
+      }
+
+      if (url) {
+        try {
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+          });
+          const data = await response.json();
+          this.labels = data
+          this.hasLabels = this.labels.length > 0;
+          //console.log(data);
+        } catch (error) {
+          console.error('Error fetching label data:', error);
+          // Handle error accordingly
+        }
+      }
     },
 
 
@@ -200,27 +226,44 @@ export default {
         throw new Error('Authentication token not found');
       }
 
-      try {
-        const response = await fetch(`${config.public.baseURL}/project/${this.projectId}/span-types/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to delete label');
-        }
-
-        // Update the local labels array to reflect the deletion
-        this.labels = this.labels.filter(label => label.id !== id);
-        this.fetchLabels();
-        console.log('Label deleted successfully');
-      } catch (error) {
-        console.error('Error deleting label:', error);
+      let url;
+      if (this.project.project_type === 'DocumentClassification') {
+        url = `${config.public.baseURL}/project/${this.projectId}/category-types`;
+      } else if (this.project.project_type === 'SequenceLabeling') {
+        url = `${config.public.baseURL}/project/${this.projectId}/span-types`;
       }
+
+      if (url) {
+        try {
+          const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete label');
+          }
+
+          // Update the local labels array to reflect the deletion
+          this.labels = this.labels.filter(label => label.id !== id);
+          this.fetchLabelData();
+          console.log('Label deleted successfully');
+        } catch (error) {
+          console.error('Error deleting label:', error);
+        }
+      }
+    },
+
+    async fetchProject() {
+      const projectStore = usecurrentProjectStore();
+      await projectStore.fetchProjectById(this.projectId);
+      this.project = projectStore.project;
+      // console.log(this.project);
     },
 
     editLabel(labelId) {

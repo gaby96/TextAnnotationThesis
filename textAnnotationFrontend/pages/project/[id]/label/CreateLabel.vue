@@ -220,7 +220,7 @@ export default {
       const projectStore = usecurrentProjectStore();
       await projectStore.fetchProjectById(this.projectId);
       this.project = projectStore.project;
-      console.log(this.project)
+     // console.log(this.project)
     },
 
     async fetchLabels() {

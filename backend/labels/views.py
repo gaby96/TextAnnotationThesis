@@ -81,8 +81,9 @@ class BaseDetailAPI(generics.RetrieveUpdateDestroyAPIView):
 class CategoryListAPI(BaseListAPI):
     label_class = Category
     serializer_class = CategorySerializer
-
+    
     def create(self, request, *args, **kwargs):
+        print(request.data)
         if self.project.single_class_classification:
             self.get_queryset().delete()
         return super().create(request, args, kwargs)

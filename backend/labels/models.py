@@ -34,6 +34,7 @@ class Category(Label):
     objects = CategoryManager()
     example = models.ForeignKey(to=Example, on_delete=models.CASCADE, related_name="categories", null=True)
     label = models.ForeignKey(to=CategoryType, on_delete=models.CASCADE, null=True)
+    annotated_by=models.TextField(default="human", null=True)
 
     class Meta:
         unique_together = ("example", "user", "label")
