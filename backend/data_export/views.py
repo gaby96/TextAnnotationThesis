@@ -24,7 +24,7 @@ class DatasetCatalog(APIView):
 
 
 class DatasetExportAPI(APIView):
-    permission_classes = [IsAuthenticated & IsProjectAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         task_id = request.GET["taskId"]

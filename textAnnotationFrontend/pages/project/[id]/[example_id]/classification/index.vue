@@ -2,14 +2,20 @@
     <div class="button-container grid grid-cols-2 gap-4">
         <!-- Modal toggle -->
         <button @click="openModal"
-            class="mt-5 bg-green-500 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
+            class="mt-5 bg-green-900 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
             type="button">
             Add Comment
         </button>
 
-        <button class="mt-5 bg-green-900 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
+        <!-- <button class="mt-5 bg-green-700 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
             type="button">
             Add Guidelines
+        </button> -->
+
+        <button @click="openExportModal"
+            class="mt-5 bg-green-500 shadow-xl text-white uppercase text-xs font-semibold px-4 py-2 rounded"
+            type="button">
+            Export Dataset
         </button>
     </div>
     <div class="container">
@@ -83,11 +89,68 @@
                         class="mt-5 bg-green-500 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
 
                 </div>
+
+                <div
+                    class="border relative px-4 pt-7 mt-4 pb-8 bg-white shadow-xl w-full max-w-md mx-auto sm:px-10 rounded-b-md">
+
+                    <label for="datasetInput" class="block">Hugging face Dataset</label>
+                    <input id="datasetInput" type="text" placeholder="Dataset (e.g. conll2003)"
+                        class="border w-full h-10 px-3 mb-5 rounded-md" v-model="selectedModel" />
+
+                        <label for="datasetInput" class="block">Learning rate</label>
+                    <input id="datasetInput" type="number" placeholder="(e.g. 2e-5)"
+                        class="border w-full h-10 px-3 mb-5 rounded-md" v-model="selectedModel" />
+
+
+                    <label for="slider1" class="block">Number of training Epochs: <span id="slider1Value"
+                            class="text-red-500">0.00</span></label>
+                    <input type="range" id="slider1"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0" max="200"
+                        step="0.01" value="0"
+                        oninput="document.getElementById('slider1Value').innerText = parseFloat(this.value).toFixed(2);">
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>0.00</span>
+                        <span>200.00</span>
+                    </div>
+
+
+
+                    <!-- <label for="dropdown" class="block">Prompt Technique</label>
+                    <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
+                        <option value="">Select an option</option>
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                        <option value="option3">Option 3</option>
+                    </select>
+
+                   
+
+                    <label for="slider2" class="block">Epochs: <span id="slider2Value"
+                            class="text-red-500">0.00</span></label>
+                    <input type="range" id="slider2"
+                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0" max="1"
+                        step="0.01" value="0"
+                        oninput="document.getElementById('slider2Value').innerText = parseFloat(this.value).toFixed(2);">
+                    <div class="flex justify-between text-xs text-gray-600">
+                        <span>0.00</span>
+                        <span>1.00</span>
+                    </div> -->
+
+                    <button @click="handlePredict"
+                        class="mt-5 bg-green-500 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Fine
+                        Tune</button>
+
+                </div>
             </div>
+
+
 
         </div>
 
         <CrudModal :isModalVisible="isModalVisible" :projectId="projectId" :exampleId="exampleId" @close="closeModal" />
+
+        <ExportDatasetModal :isExportModalVisible="isExportModalVisible" :projectId="projectId" :exampleId="exampleId"
+            @close="closeExportModal" />
 
     </div>
 </template>
@@ -97,7 +160,7 @@ definePageMeta({
     layout: 'portal'
 });
 import CrudModal from "@/components/CrudModal.vue";
-import DropdownMenu from "@/components/DropdownMenu.vue";
+import ExportDatasetModal from "@/components/ExportDataset.vue"
 import { useAuthStore } from "@/stores/auth"; // Import useAuthStore if using Pinia
 import { userStore } from "@/stores/user";
 import { toast } from 'vue3-toastify';
@@ -105,6 +168,7 @@ import { toast } from 'vue3-toastify';
 export default {
     components: {
         CrudModal,
+        ExportDatasetModal
     },
     data() {
         return {
@@ -117,6 +181,7 @@ export default {
             fullText: null,
             words: [],
             isModalVisible: false,
+            isExportModalVisible: false,
             startWordIndex: -1,
             endWordIndex: -1,
             selectedModel: null,
@@ -138,6 +203,14 @@ export default {
     methods: {
         openModal() {
             this.isModalVisible = true;
+        },
+
+        openExportModal() {
+            this.isExportModalVisible = true
+        },
+
+        closeExportModal() {
+            this.isExportModalVisible = false
         },
 
         closeModal() {
@@ -315,7 +388,6 @@ export default {
         async handleLLMAnnotate(combinedData) {
             const authStore = useAuthStore();
             const token = authStore.accessToken;
-
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
@@ -331,7 +403,7 @@ export default {
                 );
                 const data = await response.json();
                 const newAnnotations = data.data;
-                // console.log(data)
+
                 this.selectedLabelID = newAnnotations[0].label
                 toast.success("Text Successfully Annotated")
                 console.log("LLM Annotation Response:", this.selectedLabelID);

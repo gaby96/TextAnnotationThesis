@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-center py-10">
-        <div class="w-3/5 mb-10">
+        <div class="w-full mb-10">
             <nuxt-link type="button" :to="`/project/${projectId}/dataimport/importdataset`"
                 style="background-color: #047857; border-radius: 4px; color: white;"
                 class="px-2 py-2 text-white font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-green rounded-lg">
@@ -10,16 +10,21 @@
 
             <div class="mt-4">
                 <EasyDataTable :headers="headers" :items="items">
+                    <template #header="header">
+                        <th class="text-lg font-bold">
+                            {{ header.text }}
+                        </th>
+                        </template>
                     <template #item-text="item">
-                        <div class="w-32 truncate">
-                            {{ item.text.length > 10 ? item.text.substr(0, 60) + '...' : item.text }}
+                        <div class="w-32 truncate text-lg">
+                            {{ item.text.length > 30 ? item.text.substr(0, 60) + '...' : item.text }}
                         </div>
                     </template>
-                    <template #item-is_confirmed="item">
-                        {{ item.is_confirmed ? 'Finished' : 'In progress' }}
+                    <template #item-is_confirmed="item" >
+                       <span class="text-lg"> {{ item.is_confirmed ? 'Finished' : 'In progress' }} </span>
                     </template>
                     <template #item-action="item">
-                        <div class=" text-center flex justify-left items-center gap-2">
+                        <div class=" text-center flex justify-left items-center gap-2 text-lg">
                             <a href="#" @click.prevent="annotateText(item.id)">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     class="h-6 w-6 text-green-500 hover:text-green-700 cursor-pointer" fill="none"
@@ -72,7 +77,6 @@ export default {
             headers: [
                 { text: "Status", value: "is_confirmed", sortable: true },
                 { text: "Text", value: "text" },
-                { text: "Meta", value: "meta" },
                 { text: "Action", value: "action" }
             ],
         }

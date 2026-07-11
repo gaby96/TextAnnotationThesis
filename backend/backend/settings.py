@@ -90,7 +90,8 @@ INSTALLED_APPS = [
     'examples',
     'label_types',
     'labels',
-    'llmapp'
+    'llmapp',
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -165,11 +166,11 @@ DJANGO_DRF_FILEPOND_FILE_STORE_PATH = MEDIA_ROOT
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'text_annotation',
-        'USER': 'postgres',
-        'PASSWORD': 'biologyc4',
-        'HOST': '127.0.0.1',  # Or 'localhost'
-        'PORT': '5432',
+        'NAME': env('POSTGRES_DB', 'text_annotation'),
+        'USER': env('POSTGRES_USER', 'postgres'),
+        'PASSWORD': env('POSTGRES_PASSWORD', 'biologyc4'),
+        'HOST': env('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': env('POSTGRES_PORT', '5432'),
     }
     
 }
@@ -177,7 +178,7 @@ DATABASES = {
 
 # Celery settings
 DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/0')
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"

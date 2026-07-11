@@ -216,6 +216,15 @@ export default {
       this.backgroundColor = color;
     },
 
+    setRandomColor() {
+      const maxVal = 0xffffff
+      const randomNumber = Math.floor(Math.random() * maxVal)
+      const randomString = randomNumber.toString(16)
+      const randColor = randomString.padStart(6, '0')
+      this.backgroundColor = `#${randColor.toUpperCase()}`
+
+    },
+    
     async fetchProject() {
       const projectStore = usecurrentProjectStore();
       await projectStore.fetchProjectById(this.projectId);
@@ -311,14 +320,7 @@ export default {
       return this.items.filter((item) => item.id !== this.id && item.suffixKey === key).length > 0
     },
 
-    setRandomColor() {
-      const maxVal = 0xffffff
-      const randomNumber = Math.floor(Math.random() * maxVal)
-      const randomString = randomNumber.toString(16)
-      const randColor = randomString.padStart(6, '0')
-      this.backgroundColor = `#${randColor.toUpperCase()}`
-
-    }
+    
   },
 };
 

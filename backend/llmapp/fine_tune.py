@@ -4,7 +4,21 @@ from datasets import load_dataset
 from datasets import load_dataset, load_metric
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from transformers import TrainerCallback
 
+
+# Define a custom callback to print out training loss, validation loss, and other metrics after each epoch
+class CustomCallback(TrainerCallback):
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs is not None:
+            print(f"Epoch: {state.epoch}, Step: {state.global_step}")
+            print(f"Training Loss: {logs.get('loss', 'N/A')}")
+            print(f"Validation Loss: {logs.get('eval_loss', 'N/A')}")
+            print(f"Accuracy: {logs.get('eval_accuracy', 'N/A')}")
+            print(f"Precision: {logs.get('eval_precision', 'N/A')}")
+            print(f"Recall: {logs.get('eval_recall', 'N/A')}")
+            print(f"F1 Score: {logs.get('eval_f1', 'N/A')}")
+            print("\n")
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
@@ -20,40 +34,33 @@ def compute_metrics(eval_pred):
 
 
 def fine_tune_bert():
-    # Define custom labels
     id2label = {0: "Negative", 1: "Positive", 2: "Neutral"}
     label2id = {"Negative": 0, "Positive": 1, "Neutral": 2}
-
-    # Load your dataset
     dataset = load_dataset("stanfordnlp/imdb")
 
-    # Initialize tokenizer and model
     tokenizer = BertTokenizer.from_pretrained("huawei-noah/TinyBERT_General_4L_312D")
     model = BertForSequenceClassification.from_pretrained(
         "huawei-noah/TinyBERT_General_4L_312D", 
-        num_labels=3,  # Adjust based on your labels
+        num_labels=3,
         id2label=id2label,
         label2id=label2id
     )
 
-    # Tokenize dataset
     def tokenize_function(examples):
         return tokenizer(examples["text"], padding="max_length", truncation=True, max_length=128)
 
     tokenized_datasets = dataset.map(tokenize_function, batched=True)
 
-    # Data collator for dynamic padding
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    # Fine-tuning settings
     training_args = TrainingArguments(
         output_dir="./results",
         evaluation_strategy="epoch",
-        save_strategy="epoch",  # Match the save strategy with the evaluation strategy
+        save_strategy="epoch",
         learning_rate=2e-5, 
         per_device_train_batch_size=8,
         per_device_eval_batch_size=8,
-        num_train_epochs=3,  # Adjust based on your needs
+        num_train_epochs=3,
         weight_decay=0.01,
         load_best_model_at_end=True,
         metric_for_best_model="accuracy",
@@ -65,18 +72,14 @@ def fine_tune_bert():
         args=training_args,
         train_dataset=tokenized_datasets["train"],
         eval_dataset=tokenized_datasets["test"],
-        data_collator=data_collator,  # Use dynamic padding
-        compute_metrics=compute_metrics,  # Pass the compute_metrics function
+        data_collator=data_collator,  
+        compute_metrics=compute_metrics,  
+         callbacks=[CustomCallback()],
     )
-
-    # Fine-tune the model
     trainer.train()
 
-    # Evaluate the model and get metrics
     metrics = trainer.evaluate()
     print(metrics)
-
-    # Save the model along with the tokenizer
     model.save_pretrained("./my_model")
     tokenizer.save_pretrained("./my_model")
 

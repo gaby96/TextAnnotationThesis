@@ -175,9 +175,7 @@ export default {
       selectedProjectTypeObject: null,
       projectTypes: [
         { 'TextClassificationProject': 'DocumentClassification' },
-        { 'SequenceLabelingProject': 'SequenceLabeling' },
-        { 'Seq2seqProject': 'Seq2seq' },
-        { 'IntentDetectionAndSlotFillingProject': 'IntentDetectionAndSlotFilling' }
+        { 'SequenceLabelingProject': 'SequenceLabeling' }
       ],
 
 

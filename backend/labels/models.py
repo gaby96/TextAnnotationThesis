@@ -47,6 +47,7 @@ class Span(Label):
     annotated_by=models.TextField(default="human", null=True)
     start_offset = models.IntegerField()
     end_offset = models.IntegerField()
+    word = models.TextField(null=False)
 
     def __str__(self):
         text = self.example.text[self.start_offset : self.end_offset]

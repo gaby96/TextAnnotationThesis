@@ -39,6 +39,7 @@ class SpanSerializer(serializers.ModelSerializer):
             "label",
             "start_offset",
             "end_offset",
+            "word"
         )
         read_only_fields = ("user",)
 

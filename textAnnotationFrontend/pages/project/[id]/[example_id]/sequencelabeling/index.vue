@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div class="text-container shadow-lg shadow-md p-4" ref="textContainer">
-            <span v-for="(word, index) in words" :key="index" class="word text-lg"
-                @dblclick="handleDoubleClick(index)"  :style="{
+            <span v-for="(word, index) in words" :key="index" class="word text-lg" @dblclick="handleDoubleClick(index)"
+                :style="{
                     padding: '0 1px',
                     lineHeight: '0 1px',
                     backgroundColor: word.annotated ? word.label.background_color : ''
@@ -46,15 +46,15 @@
                         <!-- <option value="option3">Option 3</option> -->
                     </select>
 
-                    <label for="dropdown" class="block">Prompt Technique</label>
+                    <!-- <label for="dropdown" class="block">Prompt Technique</label>
                     <select id="dropdown" class="border w-full h-10 px-3 mb-5 rounded-md">
                         <option value="">Select an option</option>
                         <option value="option1">Option 1</option>
                         <option value="option2">Option 2</option>
                         <option value="option3">Option 3</option>
-                    </select>
+                    </select> -->
 
-                    <label for="slider1" class="block">Temperature: <span id="slider1Value"
+                    <!-- <label for="slider1" class="block">Temperature: <span id="slider1Value"
                             class="text-red-500">0.00</span></label>
                     <input type="range" id="slider1"
                         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0" max="1"
@@ -63,9 +63,9 @@
                     <div class="flex justify-between text-xs text-gray-600">
                         <span>0.00</span>
                         <span>1.00</span>
-                    </div>
+                    </div> -->
 
-                    <label for="slider2" class="block">Epochs: <span id="slider2Value"
+                    <!-- <label for="slider2" class="block">Epochs: <span id="slider2Value"
                             class="text-red-500">0.00</span></label>
                     <input type="range" id="slider2"
                         class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mb-5" min="0" max="1"
@@ -74,7 +74,7 @@
                     <div class="flex justify-between text-xs text-gray-600">
                         <span>0.00</span>
                         <span>1.00</span>
-                    </div>
+                    </div> -->
 
                     <button @click="handlePredict"
                         class="mt-5 bg-green-500 hover:bg-blue-700 shadow-xl text-white uppercase text-sm font-semibold px-14 py-3 rounded">Predict</button>
@@ -175,6 +175,7 @@ export default {
                 const data = await response.json();
                 //console.log(data)
                 this.fullText = data.text;
+                // check the code well because even though a word has been annotated, it reads false for the word being annotated
                 this.processText(this.fullText);
                 this.fetchAnnotations();
             } catch (error) {
@@ -200,74 +201,67 @@ export default {
                     }
                 );
                 const annotations = await response.json();
+                console.log(annotations)
                 this.applyAnnotations(annotations);
             } catch (error) {
                 console.error("Error fetching annotations:", error);
             }
         },
-        // Method to apply LLM Annotations
-        // applyLLMAnnotations(newAnnotations) {
-        //     this.words = this.calculateOffsets(); // Calculate offsets for all words
-        //     console.log(this.words)
-
-        //     newAnnotations.forEach(annotation => {
-        //         const label = this.labels.find(l => l.id === annotation.label);
-        //         if (!label) return;
-
-        //         this.words.forEach(word => {
-        //             // Check if the word is within the start and end offsets of the annotation
-        //             if (word.startOffset < annotation.end_offset && word.endOffset > annotation.start_offset) {
-        //                 word.annotated = true;
-        //                 word.label = label;
-        //                 word.annotation_id = annotation.id;
-        //                 word.background_color = label.background_color;
-        //             }
-        //         });
-        //     });
-        // },
 
 
         applyAnnotations(annotations) {
             //fetches annotations from API
             this.annotations = annotations;
-          // console.log(annotations)
 
             //calculate the offset for each word in the text
             this.words = this.calculateOffsets(); // Calculate offsets for all words
 
-           // console.log(this.words)
-
+            // Loop through annotations
             annotations.forEach(annotation => {
-                const label = this.labels.find(l => l.id === annotation.label);
-                if (!label) return;
+                const label = this.labels.find(l => l.id === annotation.label);  // Get the label for the annotation
+                if (!label) return;  // Skip if the label is not found
 
+                // Loop through words and apply annotations
                 this.words.forEach(word => {
-                    // Check if the word is within the start and end offsets of the annotation
-                    if (word.startOffset >= annotation.start_offset && word.endOffset <= annotation.end_offset) {
-                        word.annotated = true;
-                        word.label = label;
-                        word.annotation_id = annotation.id;
+                    // Check if the word's start and end offsets overlap with the annotation's offsets
+                    if (
+                        (word.startOffset < annotation.end_offset && word.endOffset > annotation.start_offset)  // Word overlaps annotation
+                    ) {
+                        word.annotated = true;  // Mark the word as annotated
+                        word.label = label;     // Assign the label to the word
+                        word.annotation_id = annotation.id;  // Set the annotation ID
                     }
                 });
             });
-
-          //  console.log(this.words)
         },
         processText(text) {
-            const lines = text.split("\n");
-            this.words = lines.flatMap((line) => {
-                const wordsInLine = line.split(" ").map((word) => ({
+            let offset = 0;
+            this.words = [];
+
+            const wordRegex = /\S+/g;  // Matches any sequence of non-whitespace characters (a word)
+
+            let match;
+            while ((match = wordRegex.exec(text)) !== null) {
+                const word = match[0];  // Captures the word
+                const startOffset = match.index;  // Start offset from regex match
+                const endOffset = startOffset + word.length - 1;  // Adjust for inclusive endOffset
+
+                const wordObj = {
                     text: word,
                     annotated: false,
                     label: null,
-                    startOffset: null,
-                    endOffset: null,
+                    startOffset: startOffset,
+                    endOffset: endOffset,  // Inclusive end offset
                     annotation_id: null
-                }));
-                wordsInLine.push({ text: "\n", annotated: false, label: null, startOffset: null, endOffset: null });
-                return wordsInLine;
-            });
+                };
+
+                console.log(this.words)
+                this.words.push(wordObj);
+                // Update offset to continue after the current word
+                offset = endOffset + 1; // Move the offset after the word and space
+            }
         },
+
         handleDoubleClick(index) {
             // Handle double click event on a specific word (index)
             this.startWordIndex = index;
@@ -308,8 +302,9 @@ export default {
                             start_offset: this.words[i].startOffset,
                             end_offset: this.words[i].endOffset,
                             example: parseInt(this.exampleId),
+                            word: this.words[i]
                         };
-
+                        console.log(annotation)
                         // Check if the word is already in labeledWordsArray
                         const existingIndex = this.labeledWordsArray.findIndex(
                             (item) => item.start_offset === annotation.start_offset && item.endOffset === annotation.end_offset
@@ -411,7 +406,6 @@ export default {
             await this.fetchDataThatMightBeAnnotated();
             const authStore = useAuthStore();
             let userObject = authStore.user;
-           // console.log(this.selectedModel)
             if (this.labels.length > 0 && this.fullText) {
                 const combinedData = {
                     data1: this.labels,
@@ -420,7 +414,6 @@ export default {
                     selectedModel: this.selectedModel,
                     userId: userObject.id
                 };
-               // console.log(data2)
                 await this.handleLLMAnnotate(combinedData);
             } else {
                 console.log('One or both data sets are not available for processing');
@@ -446,7 +439,7 @@ export default {
                 );
                 const data = await response.json();
                 const newAnnotations = data.data;
-               // this.applyLLMAnnotations(newAnnotations)
+                this.fetchDataThatMightBeAnnotated();
                 console.log("LLM Annotation Response:", newAnnotations);
             } catch (error) {
                 console.error("Error during LLM annotation:", error);

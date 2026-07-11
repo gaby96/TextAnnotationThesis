@@ -26,7 +26,7 @@ export default defineNuxtConfig({
     // module options
     sockets: [{
       name: 'main',
-      url: 'http://localhost:3000'
+      url: process.env.SOCKET_URL || 'http://localhost:3001'
     }]
   },
 

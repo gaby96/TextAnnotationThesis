@@ -83,61 +83,69 @@ export default {
 
     methods: {
 
-        async importDataset() {
-            this.isImporting = true;
-            const item = this.fileFormats.find((item) => item.display_name === this.selectedFormat)
-            //console.log(item)
-            const config = useRuntimeConfig()
-            const authStore = useAuthStore();
-            const token = authStore.accessToken
-            const url = `${config.public.baseURL}/data_import/projects/${this.$route.params.id}/upload`; 
-            const data = {
-                format: item.name,
-                task: item.task_id,
-                uploadIds: this.uploadedFiles.map((item) => item.serverId),
-                ...this.option,
-            };
+        async importDataset() {  
+      const item = this.fileFormats.find((item) => item.display_name === this.selectedFormat);
+      const config = useRuntimeConfig();
+      const authStore = useAuthStore();
+      const token = authStore.accessToken;
+      const url = `${config.public.baseURL}/data_import/projects/${this.$route.params.id}/upload`; 
+      const data = {
+          format: item.name,
+          task: item.task_id,
+          uploadIds: this.uploadedFiles.map((item) => item.serverId),
+          ...this.option,
+      };
 
-            const toastId = toast.loading('Upload started', {
-                position: 'top-right',
-                timeout: 2000, // Keeps the toast visible until manually dismissed
-                closeOnClick: false,
-                draggable: false,
-            });
+      // Start the loading toast
+      const toastId = toast.loading('Uploading dataset...', {
+          position: toast.POSITION.BOTTOM_RIGHT,
+      });
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(data),
-                });
+      try {
+          const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(data),
+          });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+          if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+          }
 
-                const responseData = await response.json();
-                this.taskId = responseData.task_id;
-                console.log(this.taskId)
-                toast.update(toastId, {
-                    type: 'success',
-                    render: 'Upload successful',
-                    timeout: 2000, // Toast will disappear after 5 seconds
-                    closeOnClick: true,
-                    draggable: true,
-                });
-                //this.$router.push(`/project/${this.projectId}/dataimport`);
+          const responseData = await response.json();
+          this.taskId = responseData.task_id;
 
-            } catch (error) {
-                console.error('Error importing dataset:', error);
-                // Handle error, e.g., by setting an error state or displaying a message to the user
-            } finally {
-                this.isImporting = false;
-            }
-        },
+          // Update the toast to success
+          toast.update(toastId, {
+              render: 'Upload successful',
+              type: 'success',
+              isLoading: false,
+              autoClose: true,
+              closeOnClick: true,
+              closeButton: true,
+          });
+
+          this.$router.push(`/project/${this.projectId}/dataimport/`);
+
+      } catch (error) {
+          console.error('Error importing dataset:', error);
+
+          // Update the toast to error state
+          toast.update(toastId, {
+              render: 'Upload failed',
+              type: 'error',
+              isLoading: false,
+              autoClose: true,
+              closeOnClick: true,
+              closeButton: true,
+          });
+      } finally {
+          this.isImporting = false;
+      }
+  },
 
 
         handleFilePondProcessFile(error, file) {

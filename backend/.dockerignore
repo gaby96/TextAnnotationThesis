@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.py[cod]
+*.sqlite3
+.pytest_cache/
+.git/
+.DS_Store
+filepond-temp-uploads/
+media/
+results/
+llmapp/results/
