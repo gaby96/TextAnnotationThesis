@@ -7,7 +7,7 @@ from .views.assignment import (
     ResetAssignment,
 )
 from .views.comment import CommentDetail, CommentList
-from .views.example import ExampleDetail, ExampleList
+from .views.example import ExampleDetail, ExampleList, ExampleTextPage
 from .views.example_state import ExampleStateList
 
 urlpatterns = [
@@ -16,6 +16,7 @@ urlpatterns = [
     path(route="assignments/reset", view=ResetAssignment.as_view(), name="assignment_reset"),
     path(route="assignments/bulk_assign", view=BulkAssignment.as_view(), name="bulk_assignment"),
     path(route="examples", view=ExampleList.as_view(), name="example_list"),
+    path(route="examples/<int:example_id>/page", view=ExampleTextPage.as_view(), name="example_text_page"),
     path(route="examples/<int:example_id>", view=ExampleDetail.as_view(), name="example_detail"),
     path(route="comments", view=CommentList.as_view(), name="comment_list"),
     path(route="comments/<int:comment_id>", view=CommentDetail.as_view(), name="comment_detail"),

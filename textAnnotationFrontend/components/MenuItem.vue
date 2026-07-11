@@ -10,8 +10,6 @@
   </template>
   
   <script>
-  import remixiconUrl from 'remixicon/fonts/remixicon.symbol.svg'
-  
   export default {
     props: {
       icon: {
@@ -33,12 +31,6 @@
         type: Function,
         default: null,
       },
-    },
-  
-    data() {
-      return {
-        remixiconUrl,
-      }
     },
   }
   </script>

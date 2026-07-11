@@ -98,6 +98,21 @@ class SpanListAPI(BaseListAPI):
     label_class = Span
     serializer_class = SpanSerializer
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        start = self.request.query_params.get("start")
+        end = self.request.query_params.get("end")
+        if start is None or end is None:
+            return queryset
+
+        try:
+            start = int(start)
+            end = int(end)
+        except ValueError:
+            return queryset.none()
+
+        return queryset.filter(start_offset__lt=end, end_offset__gt=start)
+
 
 class SpanDetailAPI(BaseDetailAPI):
     queryset = Span.objects.all()

@@ -1,19 +1,31 @@
 <template>
     <div class="container">
         <div class="text-container shadow-lg shadow-md p-4" ref="textContainer">
-            <span v-for="(word, index) in words" :key="index" class="word text-lg" @dblclick="handleDoubleClick(index)"
-                :style="{
-                    padding: '0 1px',
-                    lineHeight: '0 1px',
-                    backgroundColor: word.annotated ? word.label.background_color : ''
-                }">
-                {{ word.text }}
-                <span v-if="word.annotated" class="annotation-label text-xs rounded-lg"
-                    :style="{ backgroundColor: word.label.background_color }">
-                    {{ word.label.text }}
-                    <button class="remove-btn" @click="removeAnnotation(index)">X</button>
-                </span>
-            </span>
+            <div class="pagination-controls mb-4">
+                <button class="page-button" :disabled="pageOffset === 0" @click="goToPreviousPage">Previous</button>
+                <span class="page-status">{{ pageStatus }}</span>
+                <button class="page-button" :disabled="nextOffset === null" @click="goToNextPage">Next</button>
+            </div>
+            <div class="words-content">
+                <template v-for="(word, index) in words" :key="index">
+                    <span class="word text-lg" :class="getWordClasses(word, index)" :data-word-index="index"
+                        @mousedown.prevent="handleWordMouseDown(index, $event)" @mouseenter="handleWordMouseEnter(index)"
+                        @mouseup.stop="handleWordMouseUp(index)" @dblclick="handleDoubleClick(index)"
+                        :style="{
+                            backgroundColor: getWordBackgroundColor(word, index),
+                            borderRadius: getWordBorderRadius(word, index)
+                        }">
+                        {{ word.text }}<span v-if="word.annotated && !isAnnotationEnd(index)"
+                            class="word-space">&nbsp;</span>
+                        <span v-if="word.annotated && word.showAnnotationLabel" class="annotation-label text-xs"
+                            :style="{ backgroundColor: word.label.background_color }">
+                            {{ word.label.text }}
+                            <button class="remove-btn" @click="removeAnnotation(index)">X</button>
+                        </span>
+                    </span>
+                    <span v-if="shouldShowWordGap(index)" class="word-gap">&nbsp;</span>
+                </template>
+            </div>
         </div>
 
         <div>
@@ -108,11 +120,18 @@ export default {
             annotation: {},
             annotations: [],
             fullText: null,
+            pageOffset: 0,
+            pageLimit: 8000,
+            totalTextLength: 0,
+            nextOffset: null,
+            previousOffset: null,
             words: [],
             selectedModel: null,
             startWordIndex: -1,
             endWordIndex: -1,
             isSelecting: false,
+            dragStartWordIndex: -1,
+            dragEndWordIndex: -1,
         };
     },
     computed: {
@@ -127,6 +146,15 @@ export default {
 
         exampleId() {
             return this.$route.params.example_id;
+        },
+
+        pageStatus() {
+            if (!this.totalTextLength) {
+                return 'Page 0 of 0';
+            }
+            const start = this.pageOffset + 1;
+            const end = Math.min(this.pageOffset + (this.fullText || '').length, this.totalTextLength);
+            return `${start}-${end} of ${this.totalTextLength}`;
         },
     },
     methods: {
@@ -163,7 +191,7 @@ export default {
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
-                    `${config.public.baseURL}/project/dataset/${this.projectId}/examples/${this.exampleId}`,
+                    `${config.public.baseURL}/project/dataset/${this.projectId}/examples/${this.exampleId}/page?offset=${this.pageOffset}&limit=${this.pageLimit}`,
                     {
                         method: "GET",
                         headers: {
@@ -173,9 +201,11 @@ export default {
                     }
                 );
                 const data = await response.json();
-                //console.log(data)
                 this.fullText = data.text;
-                // check the code well because even though a word has been annotated, it reads false for the word being annotated
+                this.pageOffset = data.offset;
+                this.totalTextLength = data.total;
+                this.nextOffset = data.next_offset;
+                this.previousOffset = data.previous_offset;
                 this.processText(this.fullText);
                 this.fetchAnnotations();
             } catch (error) {
@@ -190,8 +220,10 @@ export default {
             const token = authStore.accessToken;
             try {
                 const config = useRuntimeConfig();
+                const start = this.pageOffset;
+                const end = this.pageOffset + (this.fullText || '').length;
                 const response = await fetch(
-                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/spans`,
+                    `${config.public.baseURL}/project/annotation/${this.projectId}/examples/${this.exampleId}/spans?start=${start}&end=${end}`,
                     {
                         method: "GET",
                         headers: {
@@ -213,9 +245,6 @@ export default {
             //fetches annotations from API
             this.annotations = annotations;
 
-            //calculate the offset for each word in the text
-            this.words = this.calculateOffsets(); // Calculate offsets for all words
-
             // Loop through annotations
             annotations.forEach(annotation => {
                 const label = this.labels.find(l => l.id === annotation.label);  // Get the label for the annotation
@@ -230,8 +259,13 @@ export default {
                         word.annotated = true;  // Mark the word as annotated
                         word.label = label;     // Assign the label to the word
                         word.annotation_id = annotation.id;  // Set the annotation ID
+                        word.showAnnotationLabel = false;
                     }
                 });
+                const coveredWords = this.words.filter(word => word.annotation_id === annotation.id);
+                if (coveredWords.length) {
+                    coveredWords[coveredWords.length - 1].showAnnotationLabel = true;
+                }
             });
         },
         processText(text) {
@@ -243,22 +277,20 @@ export default {
             let match;
             while ((match = wordRegex.exec(text)) !== null) {
                 const word = match[0];  // Captures the word
-                const startOffset = match.index;  // Start offset from regex match
-                const endOffset = startOffset + word.length - 1;  // Adjust for inclusive endOffset
+                const startOffset = this.pageOffset + match.index;  // Absolute start offset
+                const endOffset = startOffset + word.length;  // Exclusive absolute end offset
 
                 const wordObj = {
                     text: word,
                     annotated: false,
                     label: null,
                     startOffset: startOffset,
-                    endOffset: endOffset,  // Inclusive end offset
-                    annotation_id: null
+                    endOffset: endOffset,
+                    annotation_id: null,
+                    showAnnotationLabel: false
                 };
 
-                console.log(this.words)
                 this.words.push(wordObj);
-                // Update offset to continue after the current word
-                offset = endOffset + 1; // Move the offset after the word and space
             }
         },
 
@@ -270,9 +302,116 @@ export default {
             this.showDropdown = true; // Show dropdown menu
         },
 
+        handleWordMouseDown(index, event) {
+            if (event.button !== 0) {
+                return;
+            }
+
+            this.showDropdown = false;
+            this.isSelecting = true;
+            this.dragStartWordIndex = index;
+            this.dragEndWordIndex = index;
+            this.startWordIndex = index;
+            this.endWordIndex = index;
+        },
+
+        handleWordMouseEnter(index) {
+            if (!this.isSelecting) {
+                return;
+            }
+
+            this.dragEndWordIndex = index;
+            this.startWordIndex = Math.min(this.dragStartWordIndex, this.dragEndWordIndex);
+            this.endWordIndex = Math.max(this.dragStartWordIndex, this.dragEndWordIndex);
+        },
+
+        handleWordMouseUp(index) {
+            if (!this.isSelecting) {
+                return;
+            }
+
+            this.dragEndWordIndex = index;
+            this.startWordIndex = Math.min(this.dragStartWordIndex, this.dragEndWordIndex);
+            this.endWordIndex = Math.max(this.dragStartWordIndex, this.dragEndWordIndex);
+            this.isSelecting = false;
+            this.calculateDropdownPosition(this.endWordIndex);
+            this.showDropdown = true;
+        },
+
+        finishWordSelection() {
+            this.isSelecting = false;
+        },
+
+        getWordBackgroundColor(word, index) {
+            if (this.isWordSelected(index)) {
+                return '#bfdbfe';
+            }
+            return word.annotated ? word.label.background_color : '';
+        },
+
+        getWordClasses(word, index) {
+            return {
+                'annotation-start': word.annotated && this.isAnnotationStart(index),
+                'annotation-middle': word.annotated && !this.isAnnotationStart(index) && !this.isAnnotationEnd(index),
+                'annotation-end': word.annotated && this.isAnnotationEnd(index),
+            };
+        },
+
+        getWordBorderRadius(word, index) {
+            if (!word.annotated && !this.isWordSelected(index)) {
+                return '';
+            }
+
+            if (this.isWordSelected(index)) {
+                return '8px';
+            }
+
+            const isStart = this.isAnnotationStart(index);
+            const isEnd = this.isAnnotationEnd(index);
+
+            if (isStart && isEnd) {
+                return '8px';
+            }
+            if (isStart) {
+                return '8px 0 0 8px';
+            }
+            if (isEnd) {
+                return '0 8px 8px 0';
+            }
+            return '0';
+        },
+
+        isSameAnnotation(index, comparisonIndex) {
+            const word = this.words[index];
+            const comparisonWord = this.words[comparisonIndex];
+            return Boolean(
+                word &&
+                comparisonWord &&
+                word.annotation_id &&
+                word.annotation_id === comparisonWord.annotation_id
+            );
+        },
+
+        isAnnotationStart(index) {
+            return !this.isSameAnnotation(index, index - 1);
+        },
+
+        isAnnotationEnd(index) {
+            return !this.isSameAnnotation(index, index + 1);
+        },
+
+        shouldShowWordGap(index) {
+            const word = this.words[index];
+            return !word?.annotated || this.isAnnotationEnd(index);
+        },
+
+        isWordSelected(index) {
+            return this.startWordIndex !== -1 && this.endWordIndex !== -1 && index >= this.startWordIndex && index <= this.endWordIndex;
+        },
+
         calculateDropdownPosition(index) {
             // Calculate position based on the index of the word
-            const spanElement = this.$refs.textContainer.children[index];
+            const spanElement = this.$refs.textContainer.querySelector(`[data-word-index="${index}"]`);
             if (spanElement) {
                 const rect = spanElement.getBoundingClientRect();
                 this.dropdownPosition.x = rect.left + window.scrollX;
@@ -290,46 +429,40 @@ export default {
         },
         async applyLabel(label) {
             if (this.startWordIndex !== -1 && this.endWordIndex !== -1) {
-                // Apply label to the words from startWordIndex to endWordIndex
-                this.words = this.calculateOffsets(); // Calculate offsets for all words
-
-                for (let i = this.startWordIndex; i <= this.endWordIndex; i++) {
-                    if (!this.words[i].annotated) {
-                        this.words[i].annotated = true;
-                        this.words[i].label = label;
-                        const annotation = {
-                            label: label.id,
-                            start_offset: this.words[i].startOffset,
-                            end_offset: this.words[i].endOffset,
-                            example: parseInt(this.exampleId),
-                            word: this.words[i]
-                        };
-                        console.log(annotation)
-                        // Check if the word is already in labeledWordsArray
-                        const existingIndex = this.labeledWordsArray.findIndex(
-                            (item) => item.start_offset === annotation.start_offset && item.endOffset === annotation.end_offset
-                        );
-
-                        if (existingIndex !== -1) {
-                            // If the word is already annotated, update the annotation
-                            this.labeledWordsArray[existingIndex] = annotation;
-                        } else {
-                            // Add new entry to labeledWordsArray
-                            this.words[i].annotated = true;
-                            this.words[i].label = label;
-                            this.labeledWordsArray.push(annotation);
-                            await this.saveAnnotation(annotation);
-                        }
-                    }
+                const selectedWords = this.words.slice(this.startWordIndex, this.endWordIndex + 1);
+                if (!selectedWords.length) {
+                    return;
                 }
+
+                const annotation = {
+                    label: label.id,
+                    start_offset: selectedWords[0].startOffset,
+                    end_offset: selectedWords[selectedWords.length - 1].endOffset,
+                    example: parseInt(this.exampleId),
+                    word: selectedWords.map(word => word.text).join(' ')
+                };
+                await this.saveAnnotation(annotation);
+                this.markWordsAnnotated(this.startWordIndex, this.endWordIndex, label, annotation.id);
 
                 // Reset selection and hide dropdown
                 this.startWordIndex = -1;
                 this.endWordIndex = -1;
+                this.dragStartWordIndex = -1;
+                this.dragEndWordIndex = -1;
                 this.showDropdown = false;
+                window.getSelection()?.removeAllRanges();
 
                 // Log the updated array of labeled words
                 //console.log(this.labeledWordsArray);
+            }
+        },
+
+        markWordsAnnotated(startIndex, endIndex, label, annotationId) {
+            for (let i = startIndex; i <= endIndex; i++) {
+                this.words[i].annotated = true;
+                this.words[i].label = label;
+                this.words[i].annotation_id = annotationId;
+                this.words[i].showAnnotationLabel = i === endIndex;
             }
         },
 
@@ -356,6 +489,7 @@ export default {
                 }
                 const data = await response.json();
                 annotation.id = data.id;
+                this.labeledWordsArray.push(annotation);
             } catch (error) {
                 console.error("Error saving annotation:", error);
                 // Handle error accordingly
@@ -365,9 +499,16 @@ export default {
         removeAnnotation(index) {
             const word = this.words[index];
             if (word.annotated) {
-                this.deleteAnnotation(word.annotation_id);
-                word.annotated = false;
-                word.label = null;
+                const annotationId = word.annotation_id;
+                this.deleteAnnotation(annotationId);
+                this.words.forEach(currentWord => {
+                    if (currentWord.annotation_id === annotationId) {
+                        currentWord.annotated = false;
+                        currentWord.label = null;
+                        currentWord.annotation_id = null;
+                        currentWord.showAnnotationLabel = false;
+                    }
+                });
             }
         },
         async deleteAnnotation(annotation_id) {
@@ -396,20 +537,24 @@ export default {
 
         handleClickOutside(event) {
             const dropdownMenu = this.$refs.dropdownMenu;
-            if (dropdownMenu && !dropdownMenu.$el.contains(event.target)) {
+            if (dropdownMenu && !dropdownMenu.$el.contains(event.target) && !this.$refs.textContainer.contains(event.target)) {
                 this.showDropdown = false;
+                this.startWordIndex = -1;
+                this.endWordIndex = -1;
+                this.dragStartWordIndex = -1;
+                this.dragEndWordIndex = -1;
             }
         },
 
         async handlePredict() {
             await this.fetchLabels();
-            await this.fetchDataThatMightBeAnnotated();
             const authStore = useAuthStore();
             let userObject = authStore.user;
-            if (this.labels.length > 0 && this.fullText) {
+            const fullExampleText = await this.fetchFullExampleText();
+            if (this.labels.length > 0 && fullExampleText) {
                 const combinedData = {
                     data1: this.labels,
-                    data2: this.fullText,
+                    data2: fullExampleText,
                     exampleId: parseInt(this.exampleId),
                     selectedModel: this.selectedModel,
                     userId: userObject.id
@@ -418,6 +563,24 @@ export default {
             } else {
                 console.log('One or both data sets are not available for processing');
             }
+        },
+
+        async fetchFullExampleText() {
+            const authStore = useAuthStore();
+            const token = authStore.accessToken;
+            const config = useRuntimeConfig();
+            const response = await fetch(
+                `${config.public.baseURL}/project/dataset/${this.projectId}/examples/${this.exampleId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            const data = await response.json();
+            return data.text;
         },
 
         async handleLLMAnnotate(combinedData) {
@@ -451,15 +614,29 @@ export default {
             console.log(userStoreInstance.userObject);
             return userStoreInstance.userObject;
         },
+
+        async goToPreviousPage() {
+            if (this.previousOffset === null) return;
+            this.pageOffset = this.previousOffset;
+            await this.fetchDataThatMightBeAnnotated();
+        },
+
+        async goToNextPage() {
+            if (this.nextOffset === null) return;
+            this.pageOffset = this.nextOffset;
+            await this.fetchDataThatMightBeAnnotated();
+        },
     },
-    mounted() {
-        this.fetchDataThatMightBeAnnotated();
-        this.fetchLabels();
+    async mounted() {
+        await this.fetchLabels();
+        await this.fetchDataThatMightBeAnnotated();
         document.addEventListener('click', this.handleClickOutside);
+        document.addEventListener('mouseup', this.finishWordSelection);
     },
 
     beforeUnmount() {
         document.removeEventListener('click', this.handleClickOutside);
+        document.removeEventListener('mouseup', this.finishWordSelection);
     },
 };
 </script>
@@ -469,6 +646,8 @@ export default {
 <style scoped>
 .container {
     display: flex;
+    width: 100%;
+    min-width: 0;
 }
 
 .preview-chip {
@@ -505,10 +684,53 @@ export default {
     width: 60%;
     padding-right: 20px;
     /* Adjust this value to control the spacing between the sections */
+    user-select: text;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.page-button {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.page-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.page-status {
+    color: #374151;
+    font-size: 14px;
 }
 
 .labels-container {
     width: 40%;
+    box-sizing: border-box;
+    min-width: 0;
+    flex-shrink: 0;
+}
+
+.words-content {
+    font-size: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .divider {
@@ -528,7 +750,12 @@ export default {
     /* padding: 3px; */
     line-height: 35px;
     transition: background-color 0.3s, box-shadow 0.3s;
-    border-radius: 8px;
+    cursor: text;
+    display: inline;
+    font-size: 1.125rem;
+    padding: 0 1px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* .word:hover {
@@ -545,9 +772,13 @@ export default {
     display: inline-block;
     margin-left: 5px;
     padding: 3px 5px;
-    border-radius: 12px;
+    border-radius: 0 8px 8px 0;
     font-size: 10px;
     color: #fff;
+}
+
+.word-gap {
+    font-size: 1.125rem;
 }
 
 .annotated-word {

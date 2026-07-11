@@ -20,6 +20,11 @@
     </div>
     <div class="container">
         <div class="text-container shadow-lg shadow-md p-4" ref="textContainer">
+            <div class="pagination-controls mb-4">
+                <button class="page-button" :disabled="pageOffset === 0" @click="goToPreviousPage">Previous</button>
+                <span class="page-status">{{ pageStatus }}</span>
+                <button class="page-button" :disabled="nextOffset === null" @click="goToNextPage">Next</button>
+            </div>
             <span class="word text-lg">
                 {{ fullText }}
             </span>
@@ -179,6 +184,11 @@ export default {
             annotation: {},
             annotatedLabel: null,
             fullText: null,
+            pageOffset: 0,
+            pageLimit: 8000,
+            totalTextLength: 0,
+            nextOffset: null,
+            previousOffset: null,
             words: [],
             isModalVisible: false,
             isExportModalVisible: false,
@@ -197,6 +207,15 @@ export default {
 
         exampleId() {
             return this.$route.params.example_id;
+        },
+
+        pageStatus() {
+            if (!this.totalTextLength) {
+                return 'Page 0 of 0';
+            }
+            const start = this.pageOffset + 1;
+            const end = Math.min(this.pageOffset + (this.fullText || '').length, this.totalTextLength);
+            return `${start}-${end} of ${this.totalTextLength}`;
         },
 
     },
@@ -249,7 +268,7 @@ export default {
             try {
                 const config = useRuntimeConfig();
                 const response = await fetch(
-                    `${config.public.baseURL}/project/dataset/${this.projectId}/examples/${this.exampleId}`,
+                    `${config.public.baseURL}/project/dataset/${this.projectId}/examples/${this.exampleId}/page?offset=${this.pageOffset}&limit=${this.pageLimit}`,
                     {
                         method: "GET",
                         headers: {
@@ -259,8 +278,11 @@ export default {
                     }
                 );
                 const data = await response.json();
-                //console.log(data)
                 this.fullText = data.text;
+                this.pageOffset = data.offset;
+                this.totalTextLength = data.total;
+                this.nextOffset = data.next_offset;
+                this.previousOffset = data.previous_offset;
             } catch (error) {
                 console.error("Error fetching example data:", error);
                 // Handle error accordingly
@@ -367,13 +389,13 @@ export default {
 
         async handlePredict() {
             await this.fetchCategoryLabels();
-            await this.fetchDataThatMightBeAnnotated();
             const authStore = useAuthStore();
             let userObject = authStore.user;
-            if (this.labels.length > 0 && this.fullText) {
+            const fullExampleText = await this.fetchFullExampleText();
+            if (this.labels.length > 0 && fullExampleText) {
                 const combinedData = {
                     data1: this.labels,
-                    data2: this.fullText,
+                    data2: fullExampleText,
                     exampleId: parseInt(this.exampleId),
                     selectedModel: this.selectedModel,
                     userId: userObject.id
@@ -383,6 +405,24 @@ export default {
             } else {
                 console.log('One or both data sets are not available for processing');
             }
+        },
+
+        async fetchFullExampleText() {
+            const authStore = useAuthStore();
+            const token = authStore.accessToken;
+            const config = useRuntimeConfig();
+            const response = await fetch(
+                `${config.public.baseURL}/project/dataset/${this.projectId}/examples/${this.exampleId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            const data = await response.json();
+            return data.text;
         },
 
         async handleLLMAnnotate(combinedData) {
@@ -423,11 +463,23 @@ export default {
             console.log(userStoreInstance.userObject);
             return userStoreInstance.userObject;
         },
+
+        async goToPreviousPage() {
+            if (this.previousOffset === null) return;
+            this.pageOffset = this.previousOffset;
+            await this.fetchDataThatMightBeAnnotated();
+        },
+
+        async goToNextPage() {
+            if (this.nextOffset === null) return;
+            this.pageOffset = this.nextOffset;
+            await this.fetchDataThatMightBeAnnotated();
+        },
     },
-    mounted() {
-        this.fetchDataThatMightBeAnnotated();
-        this.fetchCategoryLabels();
-        this.fetchAnnotatedLabel();
+    async mounted() {
+        await this.fetchDataThatMightBeAnnotated();
+        await this.fetchCategoryLabels();
+        await this.fetchAnnotatedLabel();
         document.addEventListener('click', this.handleClickOutside);
     },
 
@@ -484,6 +536,33 @@ export default {
     width: 60%;
     padding-right: 20px;
     /* Adjust this value to control the spacing between the sections */
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.page-button {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.page-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.page-status {
+    color: #374151;
+    font-size: 14px;
 }
 
 .labels-container {

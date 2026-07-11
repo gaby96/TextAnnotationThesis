@@ -12,13 +12,12 @@ from labels.serializers import SpanSerializer, CategorySerializer
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
-# from bert_model import BERTSequenceLabeling
-from .bert_model import BERTSequenceLabeling, BERTTextClassification
-from transformers import pipeline
 import json
 
-openai_api_key = settings.OPENAI_API_KEY
-llm = OpenAI(temperature=0)
+def get_llm():
+    if not settings.OPENAI_API_KEY:
+        raise ValueError("OPENAI_API_KEY is required when using the GPT model")
+    return OpenAI(temperature=0, openai_api_key=settings.OPENAI_API_KEY)
 
 class NER(BaseModel):
     end_offset:int = Field("An integer representing the position in the text where the named entity ends. It indicates the last character index of the entity")
@@ -66,7 +65,7 @@ def generate_dynamic_prompt(data):
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
 
-    chain = prompt | llm | parser
+    chain = prompt | get_llm() | parser
 
     return chain.invoke({"text": text, "prompt_query": prompt_query})
 
@@ -128,6 +127,8 @@ def ner_view(request):
                 return JsonResponse({'data': serializer.data}, status=200)
 
             elif data['selectedModel'] == 'BERT':
+                from transformers import pipeline
+
                 labelsCount = len(data['data1'])
                 labelsObj = data['data1']
                 text = data['data2']
@@ -212,7 +213,7 @@ def classification_prompt(data):
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
 
-    chain = prompt | llm | parser
+    chain = prompt | get_llm() | parser
 
     return chain.invoke({"text": text, "prompt_query": prompt_query})
 
@@ -245,6 +246,8 @@ def docClassification_view(request):
                 serializer = CategorySerializer(existing_category, many=True)
                 return JsonResponse({'data': serializer.data}, status=200)
             elif data['selectedModel'] == 'BERT':
+                from .bert_model import BERTTextClassification
+
                 labelsCount = len(data['data1'])
                 labelsObj = data['data1']
                 sequence_classifier = BERTTextClassification(num_labels=labelsCount, label_map=labelsObj)

@@ -7,8 +7,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -38,11 +36,12 @@ services:
       POSTGRES_PORT: 5432
       CELERY_BROKER_URL: redis://redis:6379/0
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate && python manage.py create_roles && python manage.py runserver 0.0.0.0:8000 --noreload"
     ports:
       - "8000:8000"
     volumes:
       - backend_media:/app/media
+      - filepond_uploads:/app/filepond-temp-uploads
     depends_on:
       db:
         condition: service_healthy
@@ -53,9 +52,10 @@ services:
     build:
       context: ./backend
     environment: *backend-environment
-    command: celery -A backend.celery worker --loglevel=INFO
+    command: celery -A backend.celery worker --loglevel=INFO --concurrency=1
     volumes:
       - backend_media:/app/media
+      - filepond_uploads:/app/filepond-temp-uploads
     depends_on:
       db:
         condition: service_healthy
@@ -85,3 +85,4 @@ volumes:
   postgres_data:
   redis_data:
   backend_media:
+  filepond_uploads:
