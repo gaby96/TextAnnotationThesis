@@ -4,6 +4,12 @@
             <div class="pagination-controls mb-4">
                 <button class="page-button" :disabled="pageOffset === 0" @click="goToPreviousPage">Previous</button>
                 <span class="page-status">{{ pageStatus }}</span>
+                <form class="page-jump-form" @submit.prevent="jumpToPage">
+                    <label class="page-jump-label" for="page-jump-input">Go to page</label>
+                    <input id="page-jump-input" class="page-jump-input" type="number" min="1" :max="totalPages || 1"
+                        v-model.number="pageJumpInput" />
+                    <button class="page-button" type="submit" :disabled="!totalPages">Go</button>
+                </form>
                 <button class="page-button" :disabled="nextOffset === null" @click="goToNextPage">Next</button>
             </div>
             <div class="words-content">
@@ -125,6 +131,7 @@ export default {
             totalTextLength: 0,
             nextOffset: null,
             previousOffset: null,
+            pageJumpInput: 1,
             words: [],
             selectedModel: null,
             startWordIndex: -1,
@@ -154,7 +161,18 @@ export default {
             }
             const start = this.pageOffset + 1;
             const end = Math.min(this.pageOffset + (this.fullText || '').length, this.totalTextLength);
-            return `${start}-${end} of ${this.totalTextLength}`;
+            return `Page ${this.currentPage} of ${this.totalPages} (${start}-${end} of ${this.totalTextLength})`;
+        },
+
+        currentPage() {
+            return Math.floor(this.pageOffset / this.pageLimit) + 1;
+        },
+
+        totalPages() {
+            if (!this.totalTextLength) {
+                return 0;
+            }
+            return Math.ceil(this.totalTextLength / this.pageLimit);
         },
     },
     methods: {
@@ -206,6 +224,7 @@ export default {
                 this.totalTextLength = data.total;
                 this.nextOffset = data.next_offset;
                 this.previousOffset = data.previous_offset;
+                this.pageJumpInput = this.currentPage;
                 this.processText(this.fullText);
                 this.fetchAnnotations();
             } catch (error) {
@@ -626,6 +645,21 @@ export default {
             this.pageOffset = this.nextOffset;
             await this.fetchDataThatMightBeAnnotated();
         },
+
+        async jumpToPage() {
+            if (!this.totalPages) return;
+
+            const requestedPage = Number(this.pageJumpInput);
+            if (!Number.isFinite(requestedPage)) {
+                this.pageJumpInput = this.currentPage;
+                return;
+            }
+
+            const targetPage = Math.min(Math.max(Math.trunc(requestedPage), 1), this.totalPages);
+            this.pageJumpInput = targetPage;
+            this.pageOffset = (targetPage - 1) * this.pageLimit;
+            await this.fetchDataThatMightBeAnnotated();
+        },
     },
     async mounted() {
         await this.fetchLabels();
@@ -687,8 +721,8 @@ export default {
     user-select: text;
     box-sizing: border-box;
     min-width: 0;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 .pagination-controls {
@@ -696,6 +730,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .page-button {
@@ -718,6 +753,26 @@ export default {
     font-size: 14px;
 }
 
+.page-jump-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-jump-label {
+    color: #374151;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.page-jump-input {
+    width: 82px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+
 .labels-container {
     width: 40%;
     box-sizing: border-box;
@@ -729,8 +784,8 @@ export default {
     font-size: 0;
     max-width: 100%;
     white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 .divider {
@@ -754,8 +809,12 @@ export default {
     display: inline;
     font-size: 1.125rem;
     padding: 0 1px;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.annotation-end {
+    position: relative;
 }
 
 /* .word:hover {
@@ -763,17 +822,19 @@ export default {
 } */
 
 .annotation-label {
-    font-size: 11px;
-    padding: 3px;
-    top: 20px;
-}
-
-.annotation-label {
-    display: inline-block;
-    margin-left: 5px;
+    position: absolute;
+    right: 0;
+    top: -0.75rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    pointer-events: auto;
     padding: 3px 5px;
-    border-radius: 0 8px 8px 0;
+    border-radius: 8px;
     font-size: 10px;
+    line-height: 1;
     color: #fff;
 }
 
